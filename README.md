@@ -183,6 +183,27 @@ This project uses MIT/BSD-style licensed dependencies. See [LICENSES.md](LICENSE
 
 See [CHANGELOG.md](CHANGELOG.md) for version history.
 
+## Release Automation
+
+This repository uses a GitHub Actions workflow to automatically bump the patch version, tag, and publish a GitHub Release on every push to `main`.
+
+- Trigger: pushes to `main`
+- Versioning: Semantic Versioning (patch only auto-increment)
+- Files updated: `VERSION`, `CHANGELOG.md`
+- Tags: annotated tags in the form `vX.Y.Z`
+- Release: Created with the contents of `CHANGELOG.md`
+
+Workflow details:
+
+- Workflow file: `.github/workflows/auto-release.yml`
+- Actions used: `actions/checkout@v4`, `EndBug/add-and-commit@v9`, `softprops/action-gh-release@v2`
+- Permissions: `contents: write`, `packages: write`
+
+Manual usage notes:
+
+- To bootstrap the first version if no tags exist, the workflow treats the last tag as `v1.0.0` and will create `v1.0.1` on the next push to `main`.
+- If you re-run a workflow and the computed tag already exists, it exits early without changes.
+
 ## Support
 
 For issues and feature requests, please create an issue on GitHub.

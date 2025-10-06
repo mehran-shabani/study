@@ -143,14 +143,21 @@ class _WorkspaceDialogState extends ConsumerState<WorkspaceDialog> {
     );
 
     final notifier = ref.read(workspaceNotifierProvider.notifier);
-    final success = widget.workspace == null
-        ? await notifier.createWorkspace(workspace)
-        : await notifier.updateWorkspace(workspace);
 
-    if (mounted && success != null) {
+    bool operationSucceeded = false;
+    int? createdWorkspaceId;
+
+    if (widget.workspace == null) {
+      createdWorkspaceId = await notifier.createWorkspace(workspace);
+      operationSucceeded = createdWorkspaceId != null;
+    } else {
+      operationSucceeded = await notifier.updateWorkspace(workspace);
+    }
+
+    if (mounted && operationSucceeded) {
       // Auto-select newly created workspace
       if (widget.workspace == null) {
-        ref.read(selectedWorkspaceIdProvider.notifier).state = success;
+        ref.read(selectedWorkspaceIdProvider.notifier).state = createdWorkspaceId;
       }
       Navigator.of(context).pop();
     }

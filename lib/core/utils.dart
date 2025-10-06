@@ -36,8 +36,18 @@ class AppUtils {
     if (value == null || value.isEmpty) {
       return 'Date is required';
     }
+    // Enforce strict yyyy-MM-dd format first
+    final strictPattern = RegExp(r'^\d{4}-\d{2}-\d{2}$');
+    if (!strictPattern.hasMatch(value)) {
+      return 'Invalid date format (use yyyy-MM-dd)';
+    }
     try {
-      parseDate(value);
+      final parsed = DateFormat(AppConstants.dateFormat).parse(value);
+      // Re-format and compare to ensure zero-padding and a valid calendar date
+      final normalized = formatDate(parsed);
+      if (normalized != value) {
+        return 'Invalid date format (use yyyy-MM-dd)';
+      }
       return null;
     } catch (e) {
       return 'Invalid date format (use yyyy-MM-dd)';
