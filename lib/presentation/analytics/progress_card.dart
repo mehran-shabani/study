@@ -54,7 +54,7 @@ class ProgressCard extends StatelessWidget {
                         strokeWidth: 16,
                         backgroundColor: Theme.of(context)
                             .colorScheme
-                            .surfaceVariant
+                            .surfaceContainerHighest
                             .withOpacity(0.3),
                         valueColor: AlwaysStoppedAnimation<Color>(
                           _getProgressColor(context, progress),
