@@ -1,3 +1,14 @@
+## v1.0.1
+* Merge pull request #2 from mehran-shabani/cursor/analyze-project-for-deprecated-members-dc0c
+* Add release automation documentation
+* chore(ci): add auto-release workflow and initialize VERSION/CHANGELOG
+* Update upload-artifact action to v4
+* Fix: Improve date validation to enforce yyyy-MM-dd
+* Refactor: Update theme colors and workspace dialog logic
+* Merge pull request #1 from mehran-shabani/cursor/build-study-app-with-flutter-5be1
+* Bump intl dependency to version 0.19.0
+* feat: Initialize project with core features and CI
+
 # Changelog
 
 All notable changes to the Study app will be documented in this file.
