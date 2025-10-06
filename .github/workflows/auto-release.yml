@@ -9,18 +9,39 @@ permissions:
   packages: write
 
 jobs:
-  tag-and-release:
+  tag-release-apk:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: "3.22.x"
+
       - name: Fetch tags
         shell: bash
         run: git fetch --force --tags --quiet || true
 
+      - name: Check if HEAD already tagged (idempotency)
+        id: headtag
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAGS=$(git tag --points-at HEAD | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' || true)
+          if [[ -n "$TAGS" ]]; then
+            echo "tagged=true" >> "$GITHUB_OUTPUT"
+            echo "tag=$(echo "$TAGS" | head -n1)" >> "$GITHUB_OUTPUT"
+            echo "This commit is already tagged ($TAGS). Skipping subsequent steps."
+          else
+            echo "tagged=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Compute next patch version
+        if: steps.headtag.outputs.tagged != 'true'
         id: semver
         shell: bash
         run: |
@@ -29,30 +50,12 @@ jobs:
           echo "last=$LAST_TAG" >> "$GITHUB_OUTPUT"
           VER=${LAST_TAG#v}
           IFS='.' read -r MAJOR MINOR PATCH <<< "$VER"
-          if [[ -z "${MAJOR:-}" || -z "${MINOR:-}" || -z "${PATCH:-}" ]]; then
-            echo "Invalid last tag format: $LAST_TAG" >&2
-            exit 1
-          fi
           NEXT_PATCH=$((PATCH + 1))
           NEXT_VERSION="$MAJOR.$MINOR.$NEXT_PATCH"
           echo "next=$NEXT_VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Check if next tag already exists
-        id: check
-        shell: bash
-        run: |
-          set -euo pipefail
-          NEXT="v${{ steps.semver.outputs.next }}"
-          git fetch --tags --quiet || true
-          if git rev-parse -q --verify "refs/tags/$NEXT" >/dev/null || git ls-remote --exit-code --tags origin "$NEXT" >/dev/null; then
-            echo "exists=true" >> "$GITHUB_OUTPUT"
-            echo "Tag $NEXT already exists. Skipping."
-          else
-            echo "exists=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Update files
-        if: steps.check.outputs.exists != 'true'
+      - name: Update changelog and version files
+        if: steps.headtag.outputs.tagged != 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -68,7 +71,7 @@ jobs:
 
           CHANGELOG_TEMP=$(mktemp)
           echo "## v$NEXT" > "$CHANGELOG_TEMP"
-          LOG=$(git log ${RANGE} --pretty=format:'* %s' || true)
+          LOG=$(git log ${RANGE} --pretty=format:'* %s' --reverse || true)
           if [[ -z "$LOG" ]]; then LOG="* Internal maintenance"; fi
           echo "$LOG" >> "$CHANGELOG_TEMP"
           echo >> "$CHANGELOG_TEMP"
@@ -79,15 +82,15 @@ jobs:
           mv "$CHANGELOG_TEMP" CHANGELOG.md
 
       - name: Commit changes
-        if: steps.check.outputs.exists != 'true'
+        if: steps.headtag.outputs.tagged != 'true'
         uses: EndBug/add-and-commit@v9
         with:
           add: "VERSION CHANGELOG.md"
           message: "chore(release): v${{ steps.semver.outputs.next }}"
           default_author: github_actions
 
-      - name: Create Git tag
-        if: steps.check.outputs.exists != 'true'
+      - name: Tag commit
+        if: steps.headtag.outputs.tagged != 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -95,11 +98,21 @@ jobs:
           git tag -a "$TAG" -m "Release $TAG"
           git push origin "$TAG"
 
+      - name: Build release APK
+        if: steps.headtag.outputs.tagged != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          flutter --version
+          flutter pub get
+          flutter build apk --release --no-shrink
+
       - name: Create GitHub release
-        if: steps.check.outputs.exists != 'true'
+        if: steps.headtag.outputs.tagged != 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: "v${{ steps.semver.outputs.next }}"
           body_path: CHANGELOG.md
+          files: build/app/outputs/flutter-apk/app-release.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
