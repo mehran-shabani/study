@@ -1,0 +1,51 @@
+{
+  "@@locale": "en",
+  "appTitle": "Study",
+  "workspaces": "Workspaces",
+  "tracker": "Tracker",
+  "analytics": "Analytics",
+  "addWorkspace": "Add Workspace",
+  "editWorkspace": "Edit Workspace",
+  "deleteWorkspace": "Delete Workspace",
+  "workspaceName": "Workspace Name",
+  "startDate": "Start Date",
+  "endDate": "End Date",
+  "save": "Save",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "edit": "Edit",
+  "noWorkspaces": "No workspaces yet",
+  "createFirstWorkspace": "Create your first workspace to get started",
+  "addEntry": "Add Entry",
+  "editEntry": "Edit Entry",
+  "deleteEntry": "Delete Entry",
+  "entryDate": "Date",
+  "entryTitle": "Title",
+  "hours": "Hours",
+  "noEntries": "No study entries yet",
+  "addFirstEntry": "Add your first study entry",
+  "selectWorkspace": "Select a workspace to track study sessions",
+  "overallProgress": "Overall Progress",
+  "dailyTimeline": "Daily Timeline",
+  "hoursByTitle": "Hours by Title",
+  "noDataAvailable": "No data available",
+  "totalHours": "Total Hours",
+  "expectedHours": "Expected Hours",
+  "progressPercentage": "Progress: {percent}%",
+  "@progressPercentage": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteConfirmation": "Are you sure you want to delete this?",
+  "deleteWorkspaceWarning": "This will also delete all study entries in this workspace.",
+  "yes": "Yes",
+  "no": "No",
+  "errorOccurred": "An error occurred",
+  "invalidInput": "Invalid input",
+  "requiredField": "This field is required",
+  "from": "From",
+  "to": "To"
+}

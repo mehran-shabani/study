@@ -1,0 +1,51 @@
+{
+  "@@locale": "fa",
+  "appTitle": "مطالعه",
+  "workspaces": "فضاهای کاری",
+  "tracker": "ردیاب",
+  "analytics": "تحلیل‌ها",
+  "addWorkspace": "افزودن فضای کاری",
+  "editWorkspace": "ویرایش فضای کاری",
+  "deleteWorkspace": "حذف فضای کاری",
+  "workspaceName": "نام فضای کاری",
+  "startDate": "تاریخ شروع",
+  "endDate": "تاریخ پایان",
+  "save": "ذخیره",
+  "cancel": "لغو",
+  "delete": "حذف",
+  "edit": "ویرایش",
+  "noWorkspaces": "هنوز فضای کاری وجود ندارد",
+  "createFirstWorkspace": "اولین فضای کاری خود را ایجاد کنید",
+  "addEntry": "افزودن ورودی",
+  "editEntry": "ویرایش ورودی",
+  "deleteEntry": "حذف ورودی",
+  "entryDate": "تاریخ",
+  "entryTitle": "عنوان",
+  "hours": "ساعت",
+  "noEntries": "هنوز ورودی مطالعه‌ای وجود ندارد",
+  "addFirstEntry": "اولین ورودی مطالعه خود را اضافه کنید",
+  "selectWorkspace": "یک فضای کاری را برای ردیابی جلسات مطالعه انتخاب کنید",
+  "overallProgress": "پیشرفت کلی",
+  "dailyTimeline": "جدول زمانی روزانه",
+  "hoursByTitle": "ساعت بر اساس عنوان",
+  "noDataAvailable": "داده‌ای در دسترس نیست",
+  "totalHours": "مجموع ساعت‌ها",
+  "expectedHours": "ساعت‌های مورد انتظار",
+  "progressPercentage": "پیشرفت: {percent}٪",
+  "@progressPercentage": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteConfirmation": "آیا مطمئن هستید که می‌خواهید این را حذف کنید؟",
+  "deleteWorkspaceWarning": "این عمل تمام ورودی‌های مطالعه در این فضای کاری را نیز حذف می‌کند.",
+  "yes": "بله",
+  "no": "خیر",
+  "errorOccurred": "خطایی رخ داد",
+  "invalidInput": "ورودی نامعتبر",
+  "requiredField": "این فیلد الزامی است",
+  "from": "از",
+  "to": "تا"
+}
