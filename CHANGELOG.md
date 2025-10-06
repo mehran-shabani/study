@@ -1,3 +1,8 @@
+## v1.0.2
+* feat: Add auto release for APK builds
+* fix(android): add missing Android resources (themes and launcher icon)
+* Merge pull request #3 from mehran-shabani/cursor/automate-release-tag-and-apk-build-4d69
+
 ## v1.0.1
 * Merge pull request #2 from mehran-shabani/cursor/analyze-project-for-deprecated-members-dc0c
 * Add release automation documentation
