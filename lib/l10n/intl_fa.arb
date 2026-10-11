@@ -1,30 +1,30 @@
 {
   "@@locale": "fa",
   "appTitle": "مطالعه",
-  "workspaces": "فضاهای کاری",
-  "tracker": "ردیاب",
-  "analytics": "تحلیل‌ها",
-  "addWorkspace": "افزودن فضای کاری",
-  "editWorkspace": "ویرایش فضای کاری",
-  "deleteWorkspace": "حذف فضای کاری",
-  "workspaceName": "نام فضای کاری",
+  "workspaces": "برنامه‌ها",
+  "tracker": "مطالعه",
+  "analytics": "گزارش",
+  "addWorkspace": "برنامه جدید",
+  "editWorkspace": "ویرایش برنامه",
+  "deleteWorkspace": "حذف برنامه",
+  "workspaceName": "نام برنامه",
   "startDate": "تاریخ شروع",
   "endDate": "تاریخ پایان",
   "save": "ذخیره",
   "cancel": "لغو",
   "delete": "حذف",
   "edit": "ویرایش",
-  "noWorkspaces": "هنوز فضای کاری وجود ندارد",
-  "createFirstWorkspace": "اولین فضای کاری خود را ایجاد کنید",
-  "addEntry": "افزودن ورودی",
-  "editEntry": "ویرایش ورودی",
-  "deleteEntry": "حذف ورودی",
+  "noWorkspaces": "اولین برنامه‌ات را بساز",
+  "createFirstWorkspace": "نام، بازهٔ زمانی و هدف روزانه را مشخص کن.",
+  "addEntry": "ثبت مطالعه",
+  "editEntry": "ویرایش مطالعه",
+  "deleteEntry": "حذف مطالعه",
   "entryDate": "تاریخ",
-  "entryTitle": "عنوان",
+  "entryTitle": "درس یا موضوع",
   "hours": "ساعت",
-  "noEntries": "هنوز ورودی مطالعه‌ای وجود ندارد",
-  "addFirstEntry": "اولین ورودی مطالعه خود را اضافه کنید",
-  "selectWorkspace": "یک فضای کاری را برای ردیابی جلسات مطالعه انتخاب کنید",
+  "noEntries": "هنوز مطالعه‌ای ثبت نکرده‌ای",
+  "addFirstEntry": "اولین مطالعه را ثبت کن تا پیشرفتت را ببینی.",
+  "selectWorkspace": "یک برنامه انتخاب کن و مطالعه‌ات را ثبت کن.",
   "overallProgress": "پیشرفت کلی",
   "dailyTimeline": "جدول زمانی روزانه",
   "hoursByTitle": "ساعت بر اساس عنوان",
@@ -54,5 +54,58 @@
   "targetRange": "عدد بین ۰٫۲۵ تا ۲۴ وارد کنید",
   "exportCsv": "خروجی CSV",
   "exportFailed": "دریافت خروجی انجام نشد؛ دوباره تلاش کنید.",
-  "jalaliDateHint": "سال/ماه/روز (شمسی)"
+  "jalaliDateHint": "سال/ماه/روز (شمسی)",
+  "chooseWorkspace": "انتخاب برنامه",
+  "activePlan": "برنامهٔ فعال",
+  "today": "امروز",
+  "yesterday": "دیروز",
+  "history": "مطالعات ثبت‌شده",
+  "duration": "مدت مطالعه",
+  "quickDuration": "انتخاب سریع زمان",
+  "recentSubjects": "موضوع‌های اخیر",
+  "hoursValue": "{value} ساعت",
+  "@hoursValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "minutesValue": "{value} دقیقه",
+  "@minutesValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "remainingToday": "{value} ساعت تا هدف امروز",
+  "@remainingToday": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "goalReached": "هدف امروز تکمیل شد",
+  "goalHint": "با یک جلسهٔ کوتاه شروع کن.",
+  "saving": "در حال ذخیره…",
+  "saveFailed": "ذخیره نشد. اطلاعاتت حفظ شده؛ دوباره تلاش کن.",
+  "sessionSaved": "مطالعه ثبت شد",
+  "planSaved": "برنامه ذخیره شد",
+  "deleteFailed": "حذف انجام نشد؛ دوباره تلاش کن.",
+  "retry": "تلاش دوباره",
+  "loadFailed": "اطلاعات دریافت نشد. دوباره تلاش کن.",
+  "entryTitleHint": "مثلاً قلب، مرور یا تست",
+  "nameHint": "مثلاً آمادگی دستیاری",
+  "invalidDateRange": "تاریخ پایان باید برابر یا بعد از شروع باشد.",
+  "hoursHint": "مثلاً ۱٫۵ ساعت = ۹۰ دقیقه",
+  "deleteSessionPrompt": "مطالعهٔ «{title}» حذف شود؟",
+  "@deleteSessionPrompt": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  }
 }

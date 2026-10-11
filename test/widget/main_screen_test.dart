@@ -64,29 +64,29 @@ void main() {
       await tester.pumpAndSettle();
 
       // Initially on Workspaces screen
-      expect(find.text('Workspaces'), findsAtLeastNWidgets(1));
+      expect(find.text('Plans'), findsAtLeastNWidgets(1));
 
       // Tap on Tracker navigation
       final trackerDestination = find.ancestor(
-        of: find.text('Tracker'),
+        of: find.text('Study'),
         matching: find.byType(NavigationDestination),
       );
       await tester.tap(trackerDestination);
       await tester.pumpAndSettle();
 
       // Verify Tracker screen is shown
-      expect(find.text('Tracker'), findsAtLeastNWidgets(1));
+      expect(find.text('Study'), findsAtLeastNWidgets(1));
 
       // Tap on Analytics navigation
       final analyticsDestination = find.ancestor(
-        of: find.text('Analytics'),
+        of: find.text('Reports'),
         matching: find.byType(NavigationDestination),
       );
       await tester.tap(analyticsDestination);
       await tester.pumpAndSettle();
 
       // Verify Analytics screen is shown
-      expect(find.text('Analytics'), findsAtLeastNWidgets(1));
+      expect(find.text('Reports'), findsAtLeastNWidgets(1));
     });
   });
 }

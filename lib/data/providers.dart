@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../core/utils.dart';
 import 'models.dart';
 import 'workspace_dao.dart';
 import 'study_entry_dao.dart';
@@ -16,15 +18,20 @@ final studyEntryDaoProvider = Provider<StudyEntryDao>((ref) {
 /// Provider for all workspaces
 final workspacesProvider = StreamProvider<List<Workspace>>((ref) async* {
   final dao = ref.watch(workspaceDaoProvider);
-  // Initial load
   yield await dao.getAll();
-  
-  // Since sqflite doesn't provide streams, we'll use a simple polling mechanism
-  // In a real app, you might use a more sophisticated approach
-  await for (final _ in Stream.periodic(const Duration(milliseconds: 500))) {
-    yield await dao.getAll();
-  }
 });
+
+/// Update today's summary at local midnight without querying SQLite.
+final todayProvider = Provider<String>((ref) {
+  final now = DateTime.now();
+  final nextDay = DateTime(now.year, now.month, now.day + 1);
+  final timer = Timer(nextDay.difference(now), ref.invalidateSelf);
+  ref.onDispose(timer.cancel);
+  return AppUtils.formatDate(now);
+});
+
+/// Shared tab navigation for contextual actions (plans, study, reports).
+final mainTabProvider = StateProvider<int>((ref) => 0);
 
 /// Provider for currently selected workspace ID
 final selectedWorkspaceIdProvider = StateProvider<int?>((ref) => null);
@@ -33,7 +40,7 @@ final selectedWorkspaceIdProvider = StateProvider<int?>((ref) => null);
 final selectedWorkspaceProvider = Provider<Workspace?>((ref) {
   final workspaceId = ref.watch(selectedWorkspaceIdProvider);
   if (workspaceId == null) return null;
-  
+
   final workspacesAsync = ref.watch(workspacesProvider);
   return workspacesAsync.whenData((workspaces) {
     try {
@@ -53,26 +60,23 @@ final studyEntriesProvider = StreamProvider<List<StudyEntry>>((ref) async* {
   }
 
   final dao = ref.watch(studyEntryDaoProvider);
-  // Initial load
   yield await dao.getByWorkspace(workspaceId);
-  
-  // Polling for updates
-  await for (final _ in Stream.periodic(const Duration(milliseconds: 500))) {
-    yield await dao.getByWorkspace(workspaceId);
-  }
 });
 
 /// Notifier for workspace operations
 class WorkspaceNotifier extends StateNotifier<AsyncValue<void>> {
-  WorkspaceNotifier(this.dao) : super(const AsyncValue.data(null));
+  WorkspaceNotifier(this.dao, {this.onChanged})
+      : super(const AsyncValue.data(null));
 
   final WorkspaceDao dao;
+  final void Function()? onChanged;
 
   Future<int?> createWorkspace(Workspace workspace) async {
     state = const AsyncValue.loading();
     try {
       final id = await dao.insert(workspace);
       state = const AsyncValue.data(null);
+      onChanged?.call();
       return id;
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
@@ -85,6 +89,7 @@ class WorkspaceNotifier extends StateNotifier<AsyncValue<void>> {
     try {
       await dao.update(workspace);
       state = const AsyncValue.data(null);
+      onChanged?.call();
       return true;
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
@@ -97,6 +102,7 @@ class WorkspaceNotifier extends StateNotifier<AsyncValue<void>> {
     try {
       await dao.delete(id);
       state = const AsyncValue.data(null);
+      onChanged?.call();
       return true;
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
@@ -108,20 +114,26 @@ class WorkspaceNotifier extends StateNotifier<AsyncValue<void>> {
 /// Provider for workspace operations
 final workspaceNotifierProvider =
     StateNotifierProvider<WorkspaceNotifier, AsyncValue<void>>((ref) {
-  return WorkspaceNotifier(ref.watch(workspaceDaoProvider));
+  return WorkspaceNotifier(ref.watch(workspaceDaoProvider), onChanged: () {
+    ref.invalidate(workspacesProvider);
+    ref.invalidate(studyEntriesProvider);
+  });
 });
 
 /// Notifier for study entry operations
 class StudyEntryNotifier extends StateNotifier<AsyncValue<void>> {
-  StudyEntryNotifier(this.dao) : super(const AsyncValue.data(null));
+  StudyEntryNotifier(this.dao, {this.onChanged})
+      : super(const AsyncValue.data(null));
 
   final StudyEntryDao dao;
+  final void Function()? onChanged;
 
   Future<int?> createEntry(StudyEntry entry) async {
     state = const AsyncValue.loading();
     try {
       final id = await dao.insert(entry);
       state = const AsyncValue.data(null);
+      onChanged?.call();
       return id;
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
@@ -134,6 +146,7 @@ class StudyEntryNotifier extends StateNotifier<AsyncValue<void>> {
     try {
       await dao.update(entry);
       state = const AsyncValue.data(null);
+      onChanged?.call();
       return true;
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
@@ -146,6 +159,7 @@ class StudyEntryNotifier extends StateNotifier<AsyncValue<void>> {
     try {
       await dao.delete(id);
       state = const AsyncValue.data(null);
+      onChanged?.call();
       return true;
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
@@ -157,5 +171,7 @@ class StudyEntryNotifier extends StateNotifier<AsyncValue<void>> {
 /// Provider for study entry operations
 final studyEntryNotifierProvider =
     StateNotifierProvider<StudyEntryNotifier, AsyncValue<void>>((ref) {
-  return StudyEntryNotifier(ref.watch(studyEntryDaoProvider));
+  return StudyEntryNotifier(ref.watch(studyEntryDaoProvider), onChanged: () {
+    ref.invalidate(studyEntriesProvider);
+  });
 });

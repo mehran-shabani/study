@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../data/providers.dart';
 import '../common/export_csv_button.dart';
+import '../common/workspace_selector.dart';
+import '../common/empty_state.dart';
 import '../../domain/helpers.dart';
 import 'progress_card.dart';
 import 'timeline_chart.dart';
@@ -24,85 +26,20 @@ class AnalyticsScreen extends ConsumerWidget {
           if (selectedWorkspace != null)
             ExportCsvButton(workspace: selectedWorkspace),
         ],
-        bottom: selectedWorkspace != null
-            ? PreferredSize(
-                preferredSize: const Size.fromHeight(48),
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.folder_outlined,
-                        size: 20,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          selectedWorkspace.name,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-            : null,
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(64),
+          child: WorkspaceSelector(),
+        ),
       ),
       body: selectedWorkspace == null
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.analytics_outlined,
-                    size: 64,
-                    color:
-                        Theme.of(context).colorScheme.primary.withOpacity(0.5),
-                  ),
-                  const SizedBox(height: 16),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32),
-                    child: Text(
-                      l10n.selectWorkspace,
-                      style: Theme.of(context).textTheme.titleMedium,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ],
-              ),
-            )
+          ? EmptyState(
+              icon: Icons.folder_outlined,
+              title: l10n.chooseWorkspace,
+              message: l10n.selectWorkspace,
+              actionLabel: l10n.workspaces,
+              onAction: () => ref.read(mainTabProvider.notifier).state = 0)
           : entriesAsync.when(
               data: (entries) {
-                if (entries.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.insert_chart_outlined,
-                          size: 64,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .primary
-                              .withOpacity(0.5),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          l10n.noDataAvailable,
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
                 final progress = calcProgress(entries, selectedWorkspace);
                 final timeline = buildTimeline(entries, selectedWorkspace);
                 final titleHours = aggHoursByTitle(entries);
@@ -117,28 +54,40 @@ class AnalyticsScreen extends ConsumerWidget {
                         entries: entries,
                         workspace: selectedWorkspace,
                       ),
-                      const SizedBox(height: 24),
-                      Text(
-                        l10n.dailyTimeline,
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      const SizedBox(height: 12),
-                      TimelineChart(timeline: timeline),
-                      const SizedBox(height: 24),
-                      Text(
-                        l10n.hoursByTitle,
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      const SizedBox(height: 12),
-                      TitleChart(titleHours: titleHours),
+                      if (entries.isEmpty)
+                        EmptyState(
+                            icon: Icons.menu_book_outlined,
+                            title: l10n.noEntries,
+                            message: l10n.addFirstEntry,
+                            actionLabel: l10n.addEntry,
+                            onAction: () =>
+                                ref.read(mainTabProvider.notifier).state = 1)
+                      else ...[
+                        const SizedBox(height: 24),
+                        Text(
+                          l10n.dailyTimeline,
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: 12),
+                        TimelineChart(timeline: timeline),
+                        const SizedBox(height: 24),
+                        Text(
+                          l10n.hoursByTitle,
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: 12),
+                        TitleChart(titleHours: titleHours),
+                      ],
                     ],
                   ),
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stack) => Center(
-                child: Text('${l10n.errorOccurred}: $error'),
-              ),
+              error: (_, __) => EmptyState(
+                  icon: Icons.refresh,
+                  title: l10n.loadFailed,
+                  actionLabel: l10n.retry,
+                  onAction: () => ref.invalidate(studyEntriesProvider)),
             ),
     );
   }

@@ -225,3 +225,12 @@ For issues and feature requests, please create an issue on GitHub.
 
 Validation: `flutter analyze` and `flutter test`. Database migration, target
 calculations, Jalali New Year/leap dates, and CSV escaping have regression tests.
+
+## Usability improvements
+
+- Tap a plan to open Study directly, or change plans using the selector in Study/Reports.
+- Today's card shows logged time, the remaining time to the goal, completion, and a shortcut to edit the goal.
+- Log sessions using 15/30/60/90/120-minute presets, recent subjects, and Today/Yesterday shortcuts. Manual hours remain available.
+- Forms preserve entered data on failure, show a saving state, and block repeated submissions. Empty/error screens have clear next actions.
+- Data refreshes after successful changes instead of polling SQLite twice a second.
+- Quarter-hour durations retain their precision; Persian screens use localized duration labels.

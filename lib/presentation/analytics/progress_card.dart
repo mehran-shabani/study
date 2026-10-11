@@ -18,6 +18,9 @@ class ProgressCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).toString();
+    String duration(double value) =>
+        l10n.hoursValue(AppUtils.formatHourValue(value, locale: locale));
     final totalHours =
         entries.fold<double>(0.0, (sum, entry) => sum + entry.hours);
 
@@ -40,7 +43,7 @@ class ProgressCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-                '${l10n.dailyTarget}: ${AppUtils.formatHours(workspace.dailyTargetHours)}'),
+                '${l10n.dailyTarget}: ${duration(workspace.dailyTargetHours)}'),
             const SizedBox(height: 20),
             Center(
               child: SizedBox(
@@ -94,13 +97,13 @@ class ProgressCard extends StatelessWidget {
                 _buildStat(
                   context,
                   l10n.totalHours,
-                  AppUtils.formatHours(totalHours),
+                  duration(totalHours),
                   Icons.schedule,
                 ),
                 _buildStat(
                   context,
                   l10n.expectedHours,
-                  AppUtils.formatHours(expectedHours),
+                  duration(expectedHours),
                   Icons.flag,
                 ),
               ],
@@ -113,7 +116,8 @@ class ProgressCard extends StatelessWidget {
 
   Widget _buildStat(
       BuildContext context, String label, String value, IconData icon) {
-    return Column(
+    return Expanded(
+        child: Column(
       children: [
         Icon(
           icon,
@@ -123,18 +127,20 @@ class ProgressCard extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           value,
+          textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
         ),
         Text(
           label,
+          textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
         ),
       ],
-    );
+    ));
   }
 
   Color _getProgressColor(BuildContext context, double progress) {
