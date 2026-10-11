@@ -2,13 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:study/main.dart';
+import 'package:study/data/models.dart';
+import 'package:study/data/providers.dart';
 
 void main() {
   group('MainScreen Widget Tests', () {
     testWidgets('MainScreen displays bottom navigation bar', (tester) async {
       await tester.pumpWidget(
-        const ProviderScope(
-          child: StudyApp(),
+        ProviderScope(
+          overrides: [
+            workspacesProvider
+                .overrideWith((ref) => Stream.value(<Workspace>[])),
+            studyEntriesProvider
+                .overrideWith((ref) => Stream.value(<StudyEntry>[])),
+          ],
+          child: const StudyApp(),
         ),
       );
 
@@ -21,8 +29,14 @@ void main() {
 
     testWidgets('MainScreen has three navigation destinations', (tester) async {
       await tester.pumpWidget(
-        const ProviderScope(
-          child: StudyApp(),
+        ProviderScope(
+          overrides: [
+            workspacesProvider
+                .overrideWith((ref) => Stream.value(<Workspace>[])),
+            studyEntriesProvider
+                .overrideWith((ref) => Stream.value(<StudyEntry>[])),
+          ],
+          child: const StudyApp(),
         ),
       );
 
@@ -33,10 +47,17 @@ void main() {
       expect(destinations, findsNWidgets(3));
     });
 
-    testWidgets('MainScreen switches screens on navigation tap', (tester) async {
+    testWidgets('MainScreen switches screens on navigation tap',
+        (tester) async {
       await tester.pumpWidget(
-        const ProviderScope(
-          child: StudyApp(),
+        ProviderScope(
+          overrides: [
+            workspacesProvider
+                .overrideWith((ref) => Stream.value(<Workspace>[])),
+            studyEntriesProvider
+                .overrideWith((ref) => Stream.value(<StudyEntry>[])),
+          ],
+          child: const StudyApp(),
         ),
       );
 

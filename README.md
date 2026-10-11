@@ -207,3 +207,21 @@ Manual usage notes:
 ## Support
 
 For issues and feature requests, please create an issue on GitHub.
+
+## Daily target, Jalali dates, and CSV export
+
+- Set **Daily target (hours)** when creating or editing a workspace (0.25–24 hours).
+  Overall progress and today's progress use this workspace-specific target.
+  Existing workspaces keep their previous 4-hour target after the database upgrade.
+- Dates in forms, the workspace list, study sessions, and timeline labels use the
+  Jalali calendar. Tap a date field to open the Persian calendar picker. ISO
+  Gregorian dates remain in SQLite so previous sessions and sorting stay intact.
+- Select a workspace and tap **Export CSV** in Tracker or Analytics. Android's
+  share sheet lets you save/send the file using a compatible installed app.
+  The export contains all sessions for that workspace in chronological order:
+  `workspace,date_jalali,date_iso,title,hours,daily_target_hours`. UTF-8 BOM
+  preserves Persian text in Excel; commas, quotes, and newlines are escaped.
+  The exported target is the current workspace target, not a historical snapshot.
+
+Validation: `flutter analyze` and `flutter test`. Database migration, target
+calculations, Jalali New Year/leap dates, and CSV escaping have regression tests.

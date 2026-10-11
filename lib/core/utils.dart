@@ -1,5 +1,6 @@
 import 'package:intl/intl.dart';
 import 'constants.dart';
+import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 
 /// Utility functions for common operations
 class AppUtils {
@@ -8,6 +9,23 @@ class AppUtils {
   /// Format a DateTime to yyyy-MM-dd string
   static String formatDate(DateTime date) {
     return DateFormat(AppConstants.dateFormat).format(date);
+  }
+
+  /// Display dates in the Jalali calendar; storage remains ISO Gregorian.
+  static String displayDate(String isoDate) {
+    final date = Jalali.fromDateTime(parseDate(isoDate));
+    return '${date.year.toString().padLeft(4, '0')}/'
+        '${date.month.toString().padLeft(2, '0')}/'
+        '${date.day.toString().padLeft(2, '0')}';
+  }
+
+  static String normalizeNumber(String value) {
+    const persian = '۰۱۲۳۴۵۶۷۸۹';
+    const arabic = '٠١٢٣٤٥٦٧٨٩';
+    for (var i = 0; i < 10; i++) {
+      value = value.replaceAll(persian[i], '$i').replaceAll(arabic[i], '$i');
+    }
+    return value.trim().replaceAll('٫', '.');
   }
 
   /// Parse yyyy-MM-dd string to DateTime
@@ -84,8 +102,8 @@ class AppUtils {
     if (value == null || value.isEmpty) {
       return 'Hours is required';
     }
-    final hours = double.tryParse(value);
-    if (hours == null) {
+    final hours = double.tryParse(normalizeNumber(value));
+    if (hours == null || !hours.isFinite) {
       return 'Invalid number';
     }
     if (hours < AppConstants.minHours) {

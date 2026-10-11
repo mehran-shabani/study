@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../data/providers.dart';
+import '../common/export_csv_button.dart';
 import '../../domain/helpers.dart';
 import 'progress_card.dart';
 import 'timeline_chart.dart';
@@ -19,6 +20,10 @@ class AnalyticsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.analytics),
+        actions: [
+          if (selectedWorkspace != null)
+            ExportCsvButton(workspace: selectedWorkspace),
+        ],
         bottom: selectedWorkspace != null
             ? PreferredSize(
                 preferredSize: const Size.fromHeight(48),
@@ -35,7 +40,10 @@ class AnalyticsScreen extends ConsumerWidget {
                       Expanded(
                         child: Text(
                           selectedWorkspace.name,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(
                                 color: Theme.of(context).colorScheme.primary,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -55,7 +63,8 @@ class AnalyticsScreen extends ConsumerWidget {
                   Icon(
                     Icons.analytics_outlined,
                     size: 64,
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                    color:
+                        Theme.of(context).colorScheme.primary.withOpacity(0.5),
                   ),
                   const SizedBox(height: 16),
                   Padding(
@@ -79,7 +88,10 @@ class AnalyticsScreen extends ConsumerWidget {
                         Icon(
                           Icons.insert_chart_outlined,
                           size: 64,
-                          color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withOpacity(0.5),
                         ),
                         const SizedBox(height: 16),
                         Text(

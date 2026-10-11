@@ -47,5 +47,12 @@
   "invalidInput": "Invalid input",
   "requiredField": "This field is required",
   "from": "From",
-  "to": "To"
+  "to": "To",
+  "dailyTargetHours": "Daily target (hours)",
+  "dailyTarget": "Daily target",
+  "todayProgress": "Today / target",
+  "targetRange": "Enter a number from 0.25 to 24",
+  "exportCsv": "Export CSV",
+  "exportFailed": "Could not export. Please try again.",
+  "jalaliDateHint": "yyyy/MM/dd (Jalali)"
 }

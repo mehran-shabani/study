@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../../core/constants.dart';
 import '../../core/utils.dart';
 import '../../data/models.dart';
 
@@ -19,12 +18,13 @@ class ProgressCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final totalHours = entries.fold<double>(0.0, (sum, entry) => sum + entry.hours);
-    
+    final totalHours =
+        entries.fold<double>(0.0, (sum, entry) => sum + entry.hours);
+
     final startDate = AppUtils.parseDate(workspace.startDate);
     final endDate = AppUtils.parseDate(workspace.endDate);
     final days = AppUtils.daysBetween(startDate, endDate);
-    final expectedHours = days * AppConstants.avgDailyTargetHours;
+    final expectedHours = days * workspace.dailyTargetHours;
 
     return Card(
       child: Padding(
@@ -38,6 +38,9 @@ class ProgressCard extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
             ),
+            const SizedBox(height: 8),
+            Text(
+                '${l10n.dailyTarget}: ${AppUtils.formatHours(workspace.dailyTargetHours)}'),
             const SizedBox(height: 20),
             Center(
               child: SizedBox(
@@ -66,7 +69,10 @@ class ProgressCard extends StatelessWidget {
                       children: [
                         Text(
                           '${progress.toStringAsFixed(1)}%',
-                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineMedium
+                              ?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: _getProgressColor(context, progress),
                               ),
@@ -105,7 +111,8 @@ class ProgressCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStat(BuildContext context, String label, String value, IconData icon) {
+  Widget _buildStat(
+      BuildContext context, String label, String value, IconData icon) {
     return Column(
       children: [
         Icon(

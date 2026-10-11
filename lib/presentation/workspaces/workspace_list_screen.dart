@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../data/models.dart';
+import '../../core/utils.dart';
 import '../../data/providers.dart';
 import 'workspace_dialog.dart';
 
@@ -28,7 +29,8 @@ class WorkspaceListScreen extends ConsumerWidget {
                   Icon(
                     Icons.workspace_premium_outlined,
                     size: 64,
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                    color:
+                        Theme.of(context).colorScheme.primary.withOpacity(0.5),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -78,12 +80,15 @@ class WorkspaceListScreen extends ConsumerWidget {
                   title: Text(
                     workspace.name,
                     style: TextStyle(
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
                   subtitle: Text(
-                    '${l10n.from}: ${workspace.startDate} ${l10n.to}: ${workspace.endDate}',
+                    '${l10n.from}: ${AppUtils.displayDate(workspace.startDate)} ${l10n.to}: ${AppUtils.displayDate(workspace.endDate)}\n'
+                    '${l10n.dailyTarget}: ${AppUtils.formatHours(workspace.dailyTargetHours)}',
                   ),
+                  isThreeLine: true,
                   trailing: PopupMenuButton<String>(
                     onSelected: (value) async {
                       if (value == 'edit') {
@@ -186,7 +191,9 @@ class WorkspaceListScreen extends ConsumerWidget {
       if (ref.read(selectedWorkspaceIdProvider) == workspace.id) {
         ref.read(selectedWorkspaceIdProvider.notifier).state = null;
       }
-      await ref.read(workspaceNotifierProvider.notifier).deleteWorkspace(workspace.id!);
+      await ref
+          .read(workspaceNotifierProvider.notifier)
+          .deleteWorkspace(workspace.id!);
     }
   }
 }

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import '../common/jalali_date_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../data/models.dart';
 import '../../data/providers.dart';
 import '../../core/utils.dart';
+import '../../core/constants.dart';
 
 class WorkspaceDialog extends ConsumerStatefulWidget {
   final Workspace? workspace;
@@ -19,16 +21,26 @@ class _WorkspaceDialogState extends ConsumerState<WorkspaceDialog> {
   late TextEditingController _nameController;
   late TextEditingController _startDateController;
   late TextEditingController _endDateController;
+  late TextEditingController _targetController;
+  late DateTime _startDate;
+  late DateTime _endDate;
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.workspace?.name ?? '');
+    _startDate =
+        AppUtils.parseDate(widget.workspace?.startDate ?? AppUtils.today());
+    _endDate =
+        AppUtils.parseDate(widget.workspace?.endDate ?? AppUtils.today());
     _startDateController = TextEditingController(
-      text: widget.workspace?.startDate ?? AppUtils.today(),
+      text: AppUtils.displayDate(AppUtils.formatDate(_startDate)),
     );
     _endDateController = TextEditingController(
-      text: widget.workspace?.endDate ?? AppUtils.today(),
+      text: AppUtils.displayDate(AppUtils.formatDate(_endDate)),
+    );
+    _targetController = TextEditingController(
+      text: (widget.workspace?.dailyTargetHours ?? AppConstants.avgDailyTargetHours).toString(),
     );
   }
 
@@ -37,6 +49,7 @@ class _WorkspaceDialogState extends ConsumerState<WorkspaceDialog> {
     _nameController.dispose();
     _startDateController.dispose();
     _endDateController.dispose();
+    _targetController.dispose();
     super.dispose();
   }
 
@@ -68,9 +81,10 @@ class _WorkspaceDialogState extends ConsumerState<WorkspaceDialog> {
                 decoration: InputDecoration(
                   labelText: l10n.startDate,
                   prefixIcon: const Icon(Icons.calendar_today_outlined),
-                  hintText: 'yyyy-MM-dd',
+                  hintText: l10n.jalaliDateHint,
                 ),
-                validator: AppUtils.validateDate,
+                validator: (_) =>
+                    AppUtils.validateDate(AppUtils.formatDate(_startDate)),
                 onTap: () => _selectDate(context, _startDateController),
                 readOnly: true,
               ),
@@ -80,18 +94,33 @@ class _WorkspaceDialogState extends ConsumerState<WorkspaceDialog> {
                 decoration: InputDecoration(
                   labelText: l10n.endDate,
                   prefixIcon: const Icon(Icons.event_outlined),
-                  hintText: 'yyyy-MM-dd',
+                  hintText: l10n.jalaliDateHint,
                 ),
                 validator: (value) {
-                  final dateError = AppUtils.validateDate(value);
+                  final dateError =
+                      AppUtils.validateDate(AppUtils.formatDate(_endDate));
                   if (dateError != null) return dateError;
                   return AppUtils.validateDateRange(
-                    _startDateController.text,
-                    _endDateController.text,
+                    AppUtils.formatDate(_startDate),
+                    AppUtils.formatDate(_endDate),
                   );
                 },
                 onTap: () => _selectDate(context, _endDateController),
                 readOnly: true,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _targetController,
+                decoration: InputDecoration(
+                  labelText: l10n.dailyTargetHours,
+                  prefixIcon: const Icon(Icons.flag_outlined),
+                  helperText: l10n.targetRange,
+                ),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                validator: (value) => AppUtils.validateHours(value) == null
+                    ? null
+                    : l10n.targetRange,
               ),
             ],
           ),
@@ -114,20 +143,20 @@ class _WorkspaceDialogState extends ConsumerState<WorkspaceDialog> {
     BuildContext context,
     TextEditingController controller,
   ) async {
-    final initialDate = controller.text.isEmpty
-        ? DateTime.now()
-        : AppUtils.parseDate(controller.text);
-
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: initialDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2030),
+    final isStart = controller == _startDateController;
+    final picked = await selectJalaliDate(
+      context,
+      initialDate: isStart ? _startDate : _endDate,
     );
 
-    if (picked != null) {
+    if (picked != null && mounted) {
       setState(() {
-        controller.text = AppUtils.formatDate(picked);
+        if (isStart) {
+          _startDate = picked;
+        } else {
+          _endDate = picked;
+        }
+        controller.text = AppUtils.displayDate(AppUtils.formatDate(picked));
       });
     }
   }
@@ -138,8 +167,10 @@ class _WorkspaceDialogState extends ConsumerState<WorkspaceDialog> {
     final workspace = Workspace(
       id: widget.workspace?.id,
       name: _nameController.text.trim(),
-      startDate: _startDateController.text.trim(),
-      endDate: _endDateController.text.trim(),
+      startDate: AppUtils.formatDate(_startDate),
+      endDate: AppUtils.formatDate(_endDate),
+      dailyTargetHours:
+          double.parse(AppUtils.normalizeNumber(_targetController.text)),
     );
 
     final notifier = ref.read(workspaceNotifierProvider.notifier);
@@ -157,7 +188,8 @@ class _WorkspaceDialogState extends ConsumerState<WorkspaceDialog> {
     if (mounted && operationSucceeded) {
       // Auto-select newly created workspace
       if (widget.workspace == null) {
-        ref.read(selectedWorkspaceIdProvider.notifier).state = createdWorkspaceId;
+        ref.read(selectedWorkspaceIdProvider.notifier).state =
+            createdWorkspaceId;
       }
       Navigator.of(context).pop();
     }

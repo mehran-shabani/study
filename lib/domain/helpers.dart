@@ -1,4 +1,3 @@
-import '../core/constants.dart';
 import '../core/utils.dart';
 import '../data/models.dart';
 
@@ -23,7 +22,7 @@ class DailyPoint {
 }
 
 /// Calculate progress percentage (0-100) based on actual vs expected hours
-/// Formula: (sum of hours) / (days in workspace × avgDailyTarget) × 100
+/// Formula: (sum of hours) / (days in workspace × workspace.dailyTargetHours) × 100
 double calcProgress(List<StudyEntry> entries, Workspace workspace) {
   if (entries.isEmpty) return 0.0;
 
@@ -36,7 +35,7 @@ double calcProgress(List<StudyEntry> entries, Workspace workspace) {
   final endDate = AppUtils.parseDate(workspace.endDate);
   final days = AppUtils.daysBetween(startDate, endDate);
 
-  final expectedHours = days * AppConstants.avgDailyTargetHours;
+  final expectedHours = days * workspace.dailyTargetHours;
 
   if (expectedHours == 0) return 0.0;
 

@@ -22,6 +22,7 @@ class DatabaseService {
       path,
       version: AppConstants.dbVersion,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
       onConfigure: _onConfigure,
     );
   }
@@ -38,7 +39,9 @@ class DatabaseService {
         id           INTEGER PRIMARY KEY AUTOINCREMENT,
         name         TEXT    NOT NULL,
         start_date   TEXT    NOT NULL,
-        end_date     TEXT    NOT NULL
+        end_date     TEXT    NOT NULL,
+        daily_target_hours REAL NOT NULL DEFAULT 4.0
+          CHECK (daily_target_hours >= 0.25 AND daily_target_hours <= 24.0)
       )
     ''');
 
@@ -56,6 +59,17 @@ class DatabaseService {
       CREATE INDEX idx_entries_workspace_date 
       ON study_entries(workspace_id, entry_date)
     ''');
+  }
+
+  /// Preserve existing workspaces and entries when adding configurable targets.
+  static Future<void> _onUpgrade(
+      Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('''
+        ALTER TABLE workspaces ADD COLUMN daily_target_hours REAL NOT NULL
+          DEFAULT 4.0 CHECK (daily_target_hours >= 0.25 AND daily_target_hours <= 24.0)
+      ''');
+    }
   }
 
   /// Close the database

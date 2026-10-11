@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import '../../domain/helpers.dart';
+import '../../core/utils.dart';
 
 class TimelineChart extends StatelessWidget {
   final List<DailyPoint> timeline;
@@ -16,7 +17,8 @@ class TimelineChart extends StatelessWidget {
       );
     }
 
-    final maxHours = timeline.map((p) => p.hours).reduce((a, b) => a > b ? a : b);
+    final maxHours =
+        timeline.map((p) => p.hours).reduce((a, b) => a > b ? a : b);
     final maxY = (maxHours * 1.2).ceilToDouble();
 
     return Card(
@@ -35,14 +37,27 @@ class TimelineChart extends StatelessWidget {
                   color: Theme.of(context).colorScheme.primary,
                   barWidth: 3,
                   dotData: FlDotData(
-                    show: timeline.length <= 31, // Only show dots for monthly view
+                    show: timeline.length <=
+                        31, // Only show dots for monthly view
                   ),
                   belowBarData: BarAreaData(
                     show: true,
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    color:
+                        Theme.of(context).colorScheme.primary.withOpacity(0.1),
                   ),
                 ),
               ],
+              lineTouchData: LineTouchData(
+                touchTooltipData: LineTouchTooltipData(
+                  getTooltipItems: (spots) => spots.map((spot) {
+                    final date = timeline[spot.x.toInt()].date;
+                    return LineTooltipItem(
+                      '${AppUtils.displayDate(date)}\n${AppUtils.formatHours(spot.y)}',
+                      const TextStyle(color: Colors.white),
+                    );
+                  }).toList(),
+                ),
+              ),
               titlesData: FlTitlesData(
                 leftTitles: AxisTitles(
                   sideTitles: SideTitles(
@@ -67,8 +82,8 @@ class TimelineChart extends StatelessWidget {
                         return const SizedBox.shrink();
                       }
                       final date = timeline[index].date;
-                      // Show only day (last 2 digits)
-                      final day = date.split('-').last;
+                      // Show Jalali month/day, including across month boundaries.
+                      final day = AppUtils.displayDate(date).substring(5);
                       return Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: Text(
