@@ -1,3 +1,8 @@
+## v1.0.3
+* Merge pull request #7 from codermehran/main
+* feat: add full-screen study stopwatch with pause and discard
+* Merge pull request #8 from mehran-shabani/feat/fullscreen-study-timer
+
 ## v1.0.2
 * feat: add persistent study timer and isolate workspace widget test
 * fix: preserve stopped timer on write failure and extend regression coverage
