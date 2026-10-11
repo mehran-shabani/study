@@ -4,6 +4,9 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../data/models.dart';
 import '../../data/providers.dart';
 import '../common/export_csv_button.dart';
+import '../common/workspace_selector.dart';
+import '../common/empty_state.dart';
+import 'today_progress_card.dart';
 import '../../core/utils.dart';
 import 'entry_dialog.dart';
 
@@ -15,6 +18,7 @@ class TrackerScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final selectedWorkspace = ref.watch(selectedWorkspaceProvider);
     final entriesAsync = ref.watch(studyEntriesProvider);
+    final today = ref.watch(todayProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -23,216 +27,66 @@ class TrackerScreen extends ConsumerWidget {
           if (selectedWorkspace != null)
             ExportCsvButton(workspace: selectedWorkspace),
         ],
-        bottom: selectedWorkspace != null
-            ? PreferredSize(
-                preferredSize: const Size.fromHeight(48),
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.folder_outlined,
-                        size: 20,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          selectedWorkspace.name,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-            : null,
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(64),
+          child: WorkspaceSelector(),
+        ),
       ),
       body: selectedWorkspace == null
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.folder_off_outlined,
-                    size: 64,
-                    color:
-                        Theme.of(context).colorScheme.primary.withOpacity(0.5),
-                  ),
-                  const SizedBox(height: 16),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32),
-                    child: Text(
-                      l10n.selectWorkspace,
-                      style: Theme.of(context).textTheme.titleMedium,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ],
-              ),
+          ? EmptyState(
+              icon: Icons.folder_outlined,
+              title: l10n.chooseWorkspace,
+              message: l10n.selectWorkspace,
+              actionLabel: l10n.workspaces,
+              onAction: () => ref.read(mainTabProvider.notifier).state = 0,
             )
           : entriesAsync.when(
               data: (entries) {
                 final todayHours = entries
-                    .where((entry) => entry.entryDate == AppUtils.today())
+                    .where((entry) => entry.entryDate == today)
                     .fold<double>(0, (sum, entry) => sum + entry.hours);
-                final target = selectedWorkspace.dailyTargetHours;
-                final todayCard = Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('${l10n.todayProgress}: '
-                            '${AppUtils.formatHours(todayHours)} / ${AppUtils.formatHours(target)}'),
-                        const SizedBox(height: 8),
-                        LinearProgressIndicator(
-                          value: target > 0
-                              ? (todayHours / target).clamp(0.0, 1.0)
-                              : 0,
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-                if (entries.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.note_add_outlined,
-                          size: 64,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .primary
-                              .withOpacity(0.5),
-                        ),
-                        const SizedBox(height: 16),
-                        todayCard,
-                        const SizedBox(height: 16),
-                        Text(
-                          l10n.noEntries,
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          l10n.addFirstEntry,
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
-                                  ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                // Group entries by date
-                final groupedEntries = <String, List<StudyEntry>>{};
+                final grouped = <String, List<StudyEntry>>{};
                 for (final entry in entries) {
-                  groupedEntries
-                      .putIfAbsent(entry.entryDate, () => [])
-                      .add(entry);
+                  grouped.putIfAbsent(entry.entryDate, () => []).add(entry);
                 }
-
-                final dates = groupedEntries.keys.toList()
+                final dates = grouped.keys.toList()
                   ..sort((a, b) => b.compareTo(a));
-
                 return ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: dates.length + 1,
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+                  itemCount: dates.isEmpty ? 2 : dates.length + 2,
                   itemBuilder: (context, index) {
-                    if (index == 0) return todayCard;
-                    final date = dates[index - 1];
-                    final dateEntries = groupedEntries[date]!;
-                    final totalHours = dateEntries.fold<double>(
-                      0.0,
-                      (sum, entry) => sum + entry.hours,
-                    );
-
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .primaryContainer,
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(12),
-                                topRight: Radius.circular(12),
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.calendar_today,
-                                  size: 20,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onPrimaryContainer,
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    AppUtils.displayDate(date),
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium
-                                        ?.copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onPrimaryContainer,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                  ),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  child: Text(
-                                    AppUtils.formatHours(totalHours),
-                                    style: TextStyle(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          ...dateEntries.map(
-                              (entry) => _buildEntryTile(context, ref, entry)),
-                        ],
-                      ),
-                    );
+                    if (index == 0) {
+                      return TodayProgressCard(
+                          workspace: selectedWorkspace,
+                          hours: todayHours,
+                          date: today);
+                    }
+                    if (index == 1) {
+                      if (dates.isEmpty) {
+                        return EmptyState(
+                            icon: Icons.menu_book_outlined,
+                            title: l10n.noEntries,
+                            message: l10n.addFirstEntry,
+                            actionLabel: l10n.addEntry,
+                            onAction: () => _showEntryDialog(
+                                context, selectedWorkspace.id!));
+                      }
+                      return Padding(
+                          padding: const EdgeInsets.only(top: 24, bottom: 12),
+                          child: Text(l10n.history,
+                              style: Theme.of(context).textTheme.titleMedium));
+                    }
+                    final date = dates[index - 2];
+                    return _buildDayCard(context, ref, date, grouped[date]!);
                   },
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stack) => Center(
-                child: Text('${l10n.errorOccurred}: $error'),
+              error: (_, __) => EmptyState(
+                icon: Icons.refresh,
+                title: l10n.loadFailed,
+                actionLabel: l10n.retry,
+                onAction: () => ref.invalidate(studyEntriesProvider),
               ),
             ),
       floatingActionButton: selectedWorkspace != null
@@ -242,6 +96,33 @@ class TrackerScreen extends ConsumerWidget {
               label: Text(l10n.addEntry),
             )
           : null,
+    );
+  }
+
+  Widget _buildDayCard(BuildContext context, WidgetRef ref, String date,
+      List<StudyEntry> entries) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final hours = entries.fold<double>(0, (sum, entry) => sum + entry.hours);
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Padding(
+            padding: const EdgeInsets.all(16),
+            child: Wrap(spacing: 12, runSpacing: 4, children: [
+              Text(
+                  date == AppUtils.today()
+                      ? l10n.today
+                      : AppUtils.displayDate(date),
+                  style: theme.textTheme.titleSmall),
+              Text(
+                  l10n.hoursValue(AppUtils.formatHourValue(hours,
+                      locale: Localizations.localeOf(context).toString())),
+                  style: theme.textTheme.bodySmall),
+            ])),
+        const Divider(height: 1),
+        for (final entry in entries) _buildEntryTile(context, ref, entry),
+      ]),
     );
   }
 
@@ -257,11 +138,13 @@ class TrackerScreen extends ConsumerWidget {
           color: Theme.of(context).colorScheme.onSecondaryContainer,
         ),
       ),
+      onTap: () => _showEntryDialog(context, entry.workspaceId, entry),
       title: Text(
         entry.title,
         style: const TextStyle(fontWeight: FontWeight.w500),
       ),
-      subtitle: Text(AppUtils.formatHours(entry.hours)),
+      subtitle: Text(l10n.hoursValue(AppUtils.formatHourValue(entry.hours,
+          locale: Localizations.localeOf(context).toString()))),
       trailing: PopupMenuButton<String>(
         onSelected: (value) async {
           if (value == 'edit') {
@@ -320,7 +203,7 @@ class TrackerScreen extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(l10n.deleteEntry),
-        content: Text(l10n.deleteConfirmation),
+        content: Text(l10n.deleteSessionPrompt(entry.title)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -335,9 +218,13 @@ class TrackerScreen extends ConsumerWidget {
     );
 
     if (confirmed == true && entry.id != null) {
-      await ref
+      final success = await ref
           .read(studyEntryNotifierProvider.notifier)
           .deleteEntry(entry.id!);
+      if (context.mounted && !success) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(l10n.deleteFailed)));
+      }
     }
   }
 }

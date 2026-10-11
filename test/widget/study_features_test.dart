@@ -85,7 +85,8 @@ void main() {
       studyEntriesProvider.overrideWith((ref) => Stream.value(<StudyEntry>[])),
     ], child: localized(const TrackerScreen())));
     await tester.pumpAndSettle();
-    expect(find.text('مطالعه امروز / هدف: 0.0h / 8.0h'), findsOneWidget);
+    expect(find.byType(LinearProgressIndicator), findsOneWidget);
+    expect(find.textContaining('هدف روزانه:'), findsOneWidget);
     expect(find.byTooltip('خروجی CSV'), findsOneWidget);
   });
 }

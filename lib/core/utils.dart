@@ -40,7 +40,7 @@ class AppUtils {
 
   /// Validate workspace name
   static String? validateWorkspaceName(String? value) {
-    if (value == null || value.isEmpty) {
+    if (value == null || value.trim().isEmpty) {
       return 'Name is required';
     }
     if (value.length > AppConstants.maxWorkspaceNameLength) {
@@ -51,7 +51,7 @@ class AppUtils {
 
   /// Validate date string format
   static String? validateDate(String? value) {
-    if (value == null || value.isEmpty) {
+    if (value == null || value.trim().isEmpty) {
       return 'Date is required';
     }
     // Enforce strict yyyy-MM-dd format first
@@ -88,7 +88,7 @@ class AppUtils {
 
   /// Validate entry title
   static String? validateEntryTitle(String? value) {
-    if (value == null || value.isEmpty) {
+    if (value == null || value.trim().isEmpty) {
       return 'Title is required';
     }
     if (value.length > AppConstants.maxEntryTitleLength) {
@@ -99,7 +99,7 @@ class AppUtils {
 
   /// Validate hours value
   static String? validateHours(String? value) {
-    if (value == null || value.isEmpty) {
+    if (value == null || value.trim().isEmpty) {
       return 'Hours is required';
     }
     final hours = double.tryParse(normalizeNumber(value));
@@ -124,7 +124,12 @@ class AppUtils {
 
   /// Format hours to display string (e.g., "2.5h", "1.0h")
   static String formatHours(double hours) {
-    return '${hours.toStringAsFixed(1)}h';
+    return '${formatHourValue(hours)}h';
+  }
+
+  /// Keep quarter-hour values exact while retaining one decimal for whole hours.
+  static String formatHourValue(double hours, {String? locale}) {
+    return NumberFormat('0.0#', locale).format(hours);
   }
 
   /// Format percentage (e.g., "75.5%")

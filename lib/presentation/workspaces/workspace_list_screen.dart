@@ -5,6 +5,7 @@ import '../../data/models.dart';
 import '../../core/utils.dart';
 import '../../data/providers.dart';
 import 'workspace_dialog.dart';
+import '../common/empty_state.dart';
 
 class WorkspaceListScreen extends ConsumerWidget {
   const WorkspaceListScreen({super.key});
@@ -22,35 +23,16 @@ class WorkspaceListScreen extends ConsumerWidget {
       body: workspacesAsync.when(
         data: (workspaces) {
           if (workspaces.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.workspace_premium_outlined,
-                    size: 64,
-                    color:
-                        Theme.of(context).colorScheme.primary.withOpacity(0.5),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    l10n.noWorkspaces,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    l10n.createFirstWorkspace,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                  ),
-                ],
-              ),
-            );
+            return EmptyState(
+                icon: Icons.event_note_outlined,
+                title: l10n.noWorkspaces,
+                message: l10n.createFirstWorkspace,
+                actionLabel: l10n.addWorkspace,
+                onAction: () => _showWorkspaceDialog(context, null));
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
             itemCount: workspaces.length,
             itemBuilder: (context, index) {
               final workspace = workspaces[index];
@@ -65,20 +47,23 @@ class WorkspaceListScreen extends ConsumerWidget {
                   onTap: () {
                     ref.read(selectedWorkspaceIdProvider.notifier).state =
                         workspace.id;
+                    ref.read(mainTabProvider.notifier).state = 1;
                   },
                   leading: CircleAvatar(
                     backgroundColor: isSelected
                         ? Theme.of(context).colorScheme.primary
                         : Theme.of(context).colorScheme.secondaryContainer,
                     child: Icon(
-                      Icons.folder_outlined,
+                      isSelected
+                          ? Icons.check_circle_outline
+                          : Icons.folder_outlined,
                       color: isSelected
                           ? Theme.of(context).colorScheme.onPrimary
                           : Theme.of(context).colorScheme.onSecondaryContainer,
                     ),
                   ),
                   title: Text(
-                    workspace.name,
+                    '${workspace.name}${isSelected ? ' • ${l10n.activePlan}' : ''}',
                     style: TextStyle(
                       fontWeight:
                           isSelected ? FontWeight.bold : FontWeight.normal,
@@ -86,7 +71,7 @@ class WorkspaceListScreen extends ConsumerWidget {
                   ),
                   subtitle: Text(
                     '${l10n.from}: ${AppUtils.displayDate(workspace.startDate)} ${l10n.to}: ${AppUtils.displayDate(workspace.endDate)}\n'
-                    '${l10n.dailyTarget}: ${AppUtils.formatHours(workspace.dailyTargetHours)}',
+                    '${l10n.dailyTarget}: ${l10n.hoursValue(AppUtils.formatHourValue(workspace.dailyTargetHours, locale: Localizations.localeOf(context).toString()))}',
                   ),
                   isThreeLine: true,
                   trailing: PopupMenuButton<String>(
@@ -126,9 +111,11 @@ class WorkspaceListScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => Center(
-          child: Text('${l10n.errorOccurred}: $error'),
-        ),
+        error: (_, __) => EmptyState(
+            icon: Icons.refresh,
+            title: l10n.loadFailed,
+            actionLabel: l10n.retry,
+            onAction: () => ref.invalidate(workspacesProvider)),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showWorkspaceDialog(context, null),
@@ -187,13 +174,16 @@ class WorkspaceListScreen extends ConsumerWidget {
     );
 
     if (confirmed == true && workspace.id != null) {
-      // Clear selection if deleting the selected workspace
-      if (ref.read(selectedWorkspaceIdProvider) == workspace.id) {
-        ref.read(selectedWorkspaceIdProvider.notifier).state = null;
-      }
-      await ref
+      final success = await ref
           .read(workspaceNotifierProvider.notifier)
           .deleteWorkspace(workspace.id!);
+      if (success && ref.read(selectedWorkspaceIdProvider) == workspace.id) {
+        ref.read(selectedWorkspaceIdProvider.notifier).state = null;
+      }
+      if (context.mounted && !success) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(l10n.deleteFailed)));
+      }
     }
   }
 }

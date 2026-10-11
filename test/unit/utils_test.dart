@@ -125,6 +125,8 @@ void main() {
   group('Formatting', () {
     test('formatHours formats correctly', () {
       expect(AppUtils.formatHours(2.5), '2.5h');
+      expect(AppUtils.formatHours(0.25), '0.25h');
+      expect(AppUtils.formatHours(7.75), '7.75h');
       expect(AppUtils.formatHours(1.0), '1.0h');
     });
 

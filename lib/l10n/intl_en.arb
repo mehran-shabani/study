@@ -1,30 +1,30 @@
 {
   "@@locale": "en",
   "appTitle": "Study",
-  "workspaces": "Workspaces",
-  "tracker": "Tracker",
-  "analytics": "Analytics",
-  "addWorkspace": "Add Workspace",
-  "editWorkspace": "Edit Workspace",
-  "deleteWorkspace": "Delete Workspace",
-  "workspaceName": "Workspace Name",
+  "workspaces": "Plans",
+  "tracker": "Study",
+  "analytics": "Reports",
+  "addWorkspace": "New plan",
+  "editWorkspace": "Edit plan",
+  "deleteWorkspace": "Delete plan",
+  "workspaceName": "Plan name",
   "startDate": "Start Date",
   "endDate": "End Date",
   "save": "Save",
   "cancel": "Cancel",
   "delete": "Delete",
   "edit": "Edit",
-  "noWorkspaces": "No workspaces yet",
-  "createFirstWorkspace": "Create your first workspace to get started",
-  "addEntry": "Add Entry",
-  "editEntry": "Edit Entry",
-  "deleteEntry": "Delete Entry",
+  "noWorkspaces": "Create your first plan",
+  "createFirstWorkspace": "Choose a name, date range and daily target.",
+  "addEntry": "Log study",
+  "editEntry": "Edit session",
+  "deleteEntry": "Delete session",
   "entryDate": "Date",
-  "entryTitle": "Title",
+  "entryTitle": "Subject",
   "hours": "Hours",
-  "noEntries": "No study entries yet",
-  "addFirstEntry": "Add your first study entry",
-  "selectWorkspace": "Select a workspace to track study sessions",
+  "noEntries": "No sessions yet",
+  "addFirstEntry": "Log your first session to see your progress.",
+  "selectWorkspace": "Choose a plan to start tracking your study.",
   "overallProgress": "Overall Progress",
   "dailyTimeline": "Daily Timeline",
   "hoursByTitle": "Hours by Title",
@@ -54,5 +54,58 @@
   "targetRange": "Enter a number from 0.25 to 24",
   "exportCsv": "Export CSV",
   "exportFailed": "Could not export. Please try again.",
-  "jalaliDateHint": "yyyy/MM/dd (Jalali)"
+  "jalaliDateHint": "yyyy/MM/dd (Jalali)",
+  "chooseWorkspace": "Choose plan",
+  "activePlan": "Active plan",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "history": "Study history",
+  "duration": "Study duration",
+  "quickDuration": "Quick duration",
+  "recentSubjects": "Recent subjects",
+  "hoursValue": "{value} hours",
+  "@hoursValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "minutesValue": "{value} min",
+  "@minutesValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "remainingToday": "{value} hours to today’s goal",
+  "@remainingToday": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "goalReached": "Today’s goal reached",
+  "goalHint": "Start with a short study session.",
+  "saving": "Saving…",
+  "saveFailed": "Could not save. Your input is preserved; try again.",
+  "sessionSaved": "Session saved",
+  "planSaved": "Plan saved",
+  "deleteFailed": "Could not delete; try again.",
+  "retry": "Try again",
+  "loadFailed": "Could not load your data. Try again.",
+  "entryTitleHint": "e.g. Cardiology, revision or practice",
+  "nameHint": "e.g. Exam preparation",
+  "invalidDateRange": "End date must be on or after the start date.",
+  "hoursHint": "e.g. 1.5 hours = 90 minutes",
+  "deleteSessionPrompt": "Delete the session “{title}”?",
+  "@deleteSessionPrompt": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  }
 }
