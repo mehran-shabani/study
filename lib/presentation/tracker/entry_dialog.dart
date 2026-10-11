@@ -115,9 +115,7 @@ class _EntryDialogState extends ConsumerState<EntryDialog> {
                           suffixText: l10n.hours,
                           prefixIcon: const Icon(Icons.schedule)),
                       validator: (value) =>
-                          AppUtils.validateHours(value) == null
-                              ? null
-                              : l10n.targetRange,
+                          _validHours(value) ? null : l10n.targetRange,
                       keyboardType:
                           const TextInputType.numberWithOptions(decimal: true),
                       textInputAction: TextInputAction.done,
@@ -196,6 +194,19 @@ class _EntryDialogState extends ConsumerState<EntryDialog> {
       _entryDate = date;
       _dateController.text = AppUtils.displayDate(AppUtils.formatDate(date));
     });
+  }
+
+  // A timer can create a session shorter than the manual entry minimum. Allow
+  // its exact saved duration when changing only the subject or date.
+  bool _validHours(String? value) {
+    final hours = double.tryParse(AppUtils.normalizeNumber(value ?? ''));
+    if (widget.entry != null &&
+        hours != null &&
+        hours == widget.entry!.hours &&
+        hours > 0) {
+      return true;
+    }
+    return AppUtils.validateHours(value) == null;
   }
 
   Future<void> _selectDate(BuildContext context) async {
