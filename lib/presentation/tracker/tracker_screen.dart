@@ -91,6 +91,7 @@ class TrackerScreen extends ConsumerWidget {
                 onAction: () => ref.invalidate(studyEntriesProvider),
               ),
             ),
+      floatingActionButtonLocation: const _RightAlignedFabLocation(),
       floatingActionButton: StudyTimerActions(
         workspace: selectedWorkspace,
         onManual: () {
@@ -231,5 +232,22 @@ class TrackerScreen extends ConsumerWidget {
             .showSnackBar(SnackBar(content: Text(l10n.deleteFailed)));
       }
     }
+  }
+}
+
+/// Keep both action buttons on the physical right, including Persian layouts.
+class _RightAlignedFabLocation extends FloatingActionButtonLocation {
+  const _RightAlignedFabLocation();
+
+  @override
+  Offset getOffset(ScaffoldPrelayoutGeometry geometry) {
+    final standard = FloatingActionButtonLocation.endFloat.getOffset(geometry);
+    return Offset(
+      geometry.scaffoldSize.width -
+          geometry.floatingActionButtonSize.width -
+          geometry.minInsets.right -
+          kFloatingActionButtonMargin,
+      standard.dy,
+    );
   }
 }

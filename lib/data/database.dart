@@ -60,6 +60,7 @@ class DatabaseService {
       ON study_entries(workspace_id, entry_date)
     ''');
     await _createTimerTable(db);
+    await _addTimerIntervals(db);
   }
 
   static Future<void> _createTimerTable(Database db) async {
@@ -75,6 +76,13 @@ class DatabaseService {
     ''');
   }
 
+  static Future<void> _addTimerIntervals(Database db) async {
+    await db.execute('ALTER TABLE study_timer ADD COLUMN paused_at TEXT');
+    await db.execute('ALTER TABLE study_timer ADD COLUMN active_since TEXT');
+    await db.execute(
+        "ALTER TABLE study_timer ADD COLUMN intervals TEXT NOT NULL DEFAULT '[]'");
+  }
+
   /// Preserve existing workspaces and entries when adding configurable targets.
   static Future<void> _onUpgrade(
       Database db, int oldVersion, int newVersion) async {
@@ -85,6 +93,7 @@ class DatabaseService {
       ''');
     }
     if (oldVersion < 3) await _createTimerTable(db);
+    if (oldVersion < 4) await _addTimerIntervals(db);
   }
 
   /// Close the database

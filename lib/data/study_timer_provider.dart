@@ -60,7 +60,7 @@ class StudyTimerController extends StateNotifier<StudyTimerState> {
   Future<bool> stop() async {
     final session = state.session;
     if (state.busy || session == null) return false;
-    if (!session.isRunning) return true;
+    if (session.isStopped) return true;
     final stopped = session.stop(now());
     if (stopped.elapsedAt(now()) < const Duration(seconds: 1)) {
       state =
@@ -74,7 +74,7 @@ class StudyTimerController extends StateNotifier<StudyTimerState> {
     final session = state.session;
     if (state.busy ||
         session == null ||
-        session.isRunning ||
+        !session.isStopped ||
         title.trim().isEmpty ||
         title.trim().length > 80) return false;
     final pending = session.withSubject(title.trim());
@@ -88,9 +88,29 @@ class StudyTimerController extends StateNotifier<StudyTimerState> {
 
   Future<bool> rememberSubject(String title) async {
     final session = state.session;
-    if (state.busy || session == null || session.isRunning) return false;
+    if (state.busy || session == null || !session.isStopped) return false;
     final pending = session.withSubject(title.trim());
     return _persist(pending, () => dao.update(pending), pending: pending);
+  }
+
+  Future<bool> pause() async {
+    final session = state.session;
+    if (state.busy || session == null || !session.isRunning) return false;
+    final paused = session.pause(now());
+    return _persist(paused, () => dao.update(paused), pending: paused);
+  }
+
+  Future<bool> resume() async {
+    final session = state.session;
+    if (state.busy || session == null || !session.isPaused) return false;
+    final resumed = session.resume(now());
+    return _persist(resumed, () => dao.update(resumed));
+  }
+
+  Future<bool> discard() async {
+    final session = state.session;
+    if (state.busy || session == null) return false;
+    return _persist(null, () => dao.discard(session));
   }
 
   Future<bool> _persist(
