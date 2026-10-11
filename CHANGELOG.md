@@ -1,3 +1,9 @@
+## v1.0.2
+* feat: add persistent study timer and isolate workspace widget test
+* fix: preserve stopped timer on write failure and extend regression coverage
+* Merge pull request #6 from mehran-shabani/feat/study-timer
+* Merge branch 'mehran-shabani:main' into main
+
 ## v1.0.1
 * feat: Initialize project with core features and CI
 * Bump intl dependency to version 0.19.0
