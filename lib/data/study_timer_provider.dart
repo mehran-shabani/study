@@ -67,12 +67,16 @@ class StudyTimerController extends StateNotifier<StudyTimerState> {
           StudyTimerState(session: session, error: TimerTooShortException());
       return false;
     }
-    return _persist(stopped, () => dao.update(stopped));
+    return _persist(stopped, () => dao.update(stopped), pending: stopped);
   }
 
   Future<bool> save(String title) async {
     final session = state.session;
-    if (state.busy || session == null || session.isRunning) return false;
+    if (state.busy ||
+        session == null ||
+        session.isRunning ||
+        title.trim().isEmpty ||
+        title.trim().length > 80) return false;
     final pending = session.withSubject(title.trim());
     return _persist(null, () async {
       // Persist the subject as well so a failed save can be retried after restart.
@@ -80,6 +84,13 @@ class StudyTimerController extends StateNotifier<StudyTimerState> {
       await dao.finish(pending, title);
       onSaved?.call();
     }, pending: pending);
+  }
+
+  Future<bool> rememberSubject(String title) async {
+    final session = state.session;
+    if (state.busy || session == null || session.isRunning) return false;
+    final pending = session.withSubject(title.trim());
+    return _persist(pending, () => dao.update(pending), pending: pending);
   }
 
   Future<bool> _persist(

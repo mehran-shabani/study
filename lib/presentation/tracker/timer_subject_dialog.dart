@@ -94,7 +94,7 @@ class _TimerSubjectDialogState extends ConsumerState<TimerSubjectDialog> {
         ),
         actions: [
           TextButton(
-            onPressed: _saving ? null : () => Navigator.of(context).pop(),
+            onPressed: _saving ? null : _saveLater,
             child: Text(l10n.saveTimerLater),
           ),
           FilledButton(
@@ -124,5 +124,19 @@ class _TimerSubjectDialogState extends ConsumerState<TimerSubjectDialog> {
           SnackBar(content: Text(AppLocalizations.of(context)!.sessionSaved)));
       Navigator.of(context).pop();
     }
+  }
+
+  Future<void> _saveLater() async {
+    if (_saving) return;
+    setState(() => _saving = true);
+    final success = await ref
+        .read(studyTimerProvider.notifier)
+        .rememberSubject(_subject.text);
+    if (!mounted) return;
+    setState(() {
+      _saving = false;
+      _failed = !success;
+    });
+    if (success) Navigator.of(context).pop();
   }
 }

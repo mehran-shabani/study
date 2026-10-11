@@ -6,6 +6,7 @@ A production-ready Flutter application for tracking study sessions and visualizi
 
 - 📚 **Workspace Management**: Create and manage unlimited study workspaces with start/end dates
 - ⏱️ **Study Logging**: Track daily study sessions with title, date, and hours
+- 🕒 **Study Timer**: Start/stop with the small clock above Log study; enter the subject when stopping
 - 📊 **Analytics**: Visualize progress with three interactive charts:
   - Overall progress percentage
   - Daily timeline chart
@@ -126,7 +127,12 @@ SQLite via `sqflite` package with the following schema:
 - `workspace_id`: INTEGER NOT NULL (FK to workspaces)
 - `entry_date`: TEXT NOT NULL (yyyy-MM-dd)
 - `title`: TEXT NOT NULL (max 80 chars)
-- `hours`: REAL NOT NULL (0.25 - 24.0)
+- `hours`: REAL NOT NULL (manual: 0.25–24; timer: exact positive elapsed hours)
+
+**study_timer** (database version 3)
+- One pending session: original workspace, UTC start/stop timestamps, and subject
+- A running or stopped timer survives app restarts
+- Pending timers prevent deletion of their workspace until saved
 
 ## Key Dependencies
 
@@ -234,3 +240,15 @@ calculations, Jalali New Year/leap dates, and CSV escaping have regression tests
 - Forms preserve entered data on failure, show a saving state, and block repeated submissions. Empty/error screens have clear next actions.
 - Data refreshes after successful changes instead of polling SQLite twice a second.
 - Quarter-hour durations retain their precision; Persian screens use localized duration labels.
+
+## Study timer
+
+- In the middle **Study** tab, tap the small clock centered above **Log study**.
+- The elapsed time continues across tab changes, screen locking, and app restarts.
+- Tap again to stop. Enter the subject and save; date and duration are automatic.
+- **Save later** keeps the stopped time and entered subject, with no extra time counted.
+- Changing the selected plan does not move an active timer to another plan.
+- Sessions crossing local midnight are recorded separately for each day. Even
+  sessions shorter than fifteen minutes retain their actual duration.
+- Saving all daily entries and clearing the timer is one SQLite transaction;
+  a failed save keeps the pending session for retry.

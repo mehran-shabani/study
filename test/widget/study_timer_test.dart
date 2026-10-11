@@ -17,11 +17,14 @@ void main() {
     final dao = MemoryTimerDao();
     const workspace = Workspace(
         id: 1, name: 'قلب', startDate: '2026-10-01', endDate: '2026-10-31');
+    const otherPlan = Workspace(
+        id: 2, name: 'ریه', startDate: '2026-10-01', endDate: '2026-10-31');
     await tester.pumpWidget(ProviderScope(overrides: [
       studyTimerDaoProvider.overrideWithValue(dao),
       timerClockProvider.overrideWithValue(() => now),
       selectedWorkspaceIdProvider.overrideWith((ref) => 1),
-      workspacesProvider.overrideWith((ref) => Stream.value([workspace])),
+      workspacesProvider
+          .overrideWith((ref) => Stream.value([workspace, otherPlan])),
       studyEntriesProvider.overrideWith((ref) => Stream.value(<StudyEntry>[])),
     ], child: localized(const TrackerScreen())));
     await tester.pumpAndSettle();
@@ -34,12 +37,19 @@ void main() {
     await tester.tap(clock);
     await tester.pumpAndSettle();
     now = now.add(const Duration(seconds: 90));
+    final container =
+        ProviderScope.containerOf(tester.element(find.byType(TrackerScreen)));
+    container.read(selectedWorkspaceIdProvider.notifier).state = 2;
     await tester.pump(const Duration(seconds: 1));
     expect(find.text('00:01:30'), findsOneWidget);
     await tester.tap(clock);
     await tester.pumpAndSettle();
     expect(find.byType(TimerSubjectDialog), findsOneWidget);
-    expect(find.textContaining('1405/07/19'), findsOneWidget);
+    expect(
+        find.descendant(
+            of: find.byType(TimerSubjectDialog),
+            matching: find.textContaining('1405/07/19')),
+        findsOneWidget);
     await tester.tap(find.text('ذخیره'));
     await tester.pumpAndSettle();
     expect(dao.entries, isEmpty);
@@ -65,6 +75,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(TimerSubjectDialog), findsNothing);
     expect(dao.entries.map((e) => e.entryDate), ['2026-10-11', '2026-10-12']);
+    expect(dao.entries.every((e) => e.workspaceId == 1), isTrue);
     expect(dao.entries.fold<double>(0, (sum, e) => sum + e.hours), 90 / 3600);
     expect(dao.session, isNull);
     await tester.pumpWidget(const SizedBox.shrink());

@@ -4,6 +4,44 @@ import 'package:study/data/study_timer_provider.dart';
 import '../support/memory_timer_dao.dart';
 
 void main() {
+  test(
+      'a failed stop write freezes time and the later save retries persistence',
+      () async {
+    var now = DateTime(2026, 10, 11);
+    final dao = MemoryTimerDao();
+    final controller = StudyTimerController(dao, now: () => now);
+    addTearDown(controller.dispose);
+    await controller.ready;
+    await controller.start(1, 'قلب');
+    now = now.add(const Duration(minutes: 2));
+    dao.failUpdate = true;
+    expect(await controller.stop(), isFalse);
+    now = now.add(const Duration(hours: 1));
+    expect(
+        controller.state.session!.elapsedAt(now), const Duration(minutes: 2));
+    expect(await controller.save(''), isFalse);
+    dao.failUpdate = false;
+    expect(await controller.save('قلب'), isTrue);
+    expect(dao.entries.single.hours, 2 / 60);
+  });
+  test('an immediate stop keeps running until there is positive study time',
+      () async {
+    var now = DateTime(2026, 10, 11);
+    final dao = MemoryTimerDao();
+    final controller = StudyTimerController(dao, now: () => now);
+    addTearDown(controller.dispose);
+    await controller.ready;
+    await controller.start(1, 'قلب');
+    expect(await controller.stop(), isFalse);
+    expect(controller.state.error, isA<TimerTooShortException>());
+    expect(dao.session!.isRunning, isTrue);
+    now = now.add(const Duration(seconds: 1));
+    expect(await controller.stop(), isTrue);
+    expect(await controller.rememberSubject('قلب'), isTrue);
+    expect(dao.session!.subject, 'قلب');
+    expect(await controller.save('قلب'), isTrue);
+    expect(dao.entries.single.hours, 1 / 3600);
+  });
   test('crossing local midnight creates exact durations on each day', () {
     final session = StudyTimerSession(
       workspaceId: 7,

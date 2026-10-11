@@ -7,6 +7,7 @@ class MemoryTimerDao extends StudyTimerDao {
   final entries = <StudyEntry>[];
   int finishes = 0;
   bool failFinish = false;
+  bool failUpdate = false;
 
   @override
   Future<StudyTimerSession?> load() async => session;
@@ -18,7 +19,10 @@ class MemoryTimerDao extends StudyTimerDao {
   }
 
   @override
-  Future<void> update(StudyTimerSession value) async => session = value;
+  Future<void> update(StudyTimerSession value) async {
+    if (failUpdate) throw StateError('Storage unavailable.');
+    session = value;
+  }
 
   @override
   Future<void> finish(StudyTimerSession value, String title) async {
