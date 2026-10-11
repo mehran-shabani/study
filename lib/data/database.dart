@@ -59,6 +59,20 @@ class DatabaseService {
       CREATE INDEX idx_entries_workspace_date 
       ON study_entries(workspace_id, entry_date)
     ''');
+    await _createTimerTable(db);
+  }
+
+  static Future<void> _createTimerTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE study_timer (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        workspace_id INTEGER NOT NULL REFERENCES workspaces(id) ON DELETE RESTRICT,
+        workspace_name TEXT NOT NULL,
+        started_at TEXT NOT NULL,
+        stopped_at TEXT,
+        subject TEXT NOT NULL DEFAULT ''
+      )
+    ''');
   }
 
   /// Preserve existing workspaces and entries when adding configurable targets.
@@ -70,6 +84,7 @@ class DatabaseService {
           DEFAULT 4.0 CHECK (daily_target_hours >= 0.25 AND daily_target_hours <= 24.0)
       ''');
     }
+    if (oldVersion < 3) await _createTimerTable(db);
   }
 
   /// Close the database

@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:study/main.dart';
 import 'package:study/data/models.dart';
 import 'package:study/data/providers.dart';
+import 'package:study/data/study_timer_provider.dart';
+import '../support/memory_timer_dao.dart';
 
 void main() {
   group('MainScreen Widget Tests', () {
@@ -11,6 +13,7 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
+            studyTimerDaoProvider.overrideWithValue(MemoryTimerDao()),
             workspacesProvider
                 .overrideWith((ref) => Stream.value(<Workspace>[])),
             studyEntriesProvider
@@ -31,6 +34,7 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
+            studyTimerDaoProvider.overrideWithValue(MemoryTimerDao()),
             workspacesProvider
                 .overrideWith((ref) => Stream.value(<Workspace>[])),
             studyEntriesProvider
@@ -52,6 +56,7 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
+            studyTimerDaoProvider.overrideWithValue(MemoryTimerDao()),
             workspacesProvider
                 .overrideWith((ref) => Stream.value(<Workspace>[])),
             studyEntriesProvider

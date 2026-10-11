@@ -4,6 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../data/models.dart';
 import '../../core/utils.dart';
 import '../../data/providers.dart';
+import '../../data/study_timer_provider.dart';
 import 'workspace_dialog.dart';
 import '../common/empty_state.dart';
 
@@ -141,6 +142,12 @@ class WorkspaceListScreen extends ConsumerWidget {
     Workspace workspace,
   ) async {
     final l10n = AppLocalizations.of(context)!;
+    final timer = ref.read(studyTimerProvider).session;
+    if (timer?.workspaceId == workspace.id) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l10n.finishTimerFirst)));
+      return;
+    }
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(

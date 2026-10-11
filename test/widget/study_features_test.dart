@@ -8,9 +8,16 @@ import 'package:study/data/providers.dart';
 import 'package:study/data/workspace_dao.dart';
 import 'package:study/presentation/workspaces/workspace_dialog.dart';
 import 'package:study/presentation/tracker/tracker_screen.dart';
+import 'package:study/data/study_timer_provider.dart';
+import '../support/memory_timer_dao.dart';
 
 class RecordingWorkspaceDao extends WorkspaceDao {
   Workspace? saved;
+
+  // Saving invalidates workspacesProvider, which calls getAll again. Keep that
+  // refresh inside the fake instead of accidentally opening a real database.
+  @override
+  Future<List<Workspace>> getAll() async => saved == null ? [] : [saved!];
 
   @override
   Future<int> update(Workspace workspace) async {
@@ -80,6 +87,7 @@ void main() {
       'tracker shows configured target and export button even with no sessions',
       (tester) async {
     await tester.pumpWidget(ProviderScope(overrides: [
+      studyTimerDaoProvider.overrideWithValue(MemoryTimerDao()),
       selectedWorkspaceIdProvider.overrideWith((ref) => 1),
       workspacesProvider.overrideWith((ref) => Stream.value([workspace])),
       studyEntriesProvider.overrideWith((ref) => Stream.value(<StudyEntry>[])),

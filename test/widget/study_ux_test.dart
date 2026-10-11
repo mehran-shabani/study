@@ -10,6 +10,8 @@ import 'package:study/data/providers.dart';
 import 'package:study/data/study_entry_dao.dart';
 import 'package:study/main.dart';
 import 'package:study/presentation/tracker/entry_dialog.dart';
+import 'package:study/data/study_timer_provider.dart';
+import '../support/memory_timer_dao.dart';
 
 class ControlledEntryDao extends StudyEntryDao {
   final pending = Completer<int>();
@@ -110,6 +112,7 @@ void main() {
           endDate: '2026-10-31'),
     ];
     await tester.pumpWidget(ProviderScope(overrides: [
+      studyTimerDaoProvider.overrideWithValue(MemoryTimerDao()),
       workspacesProvider.overrideWith((ref) => Stream.value(plans)),
       studyEntriesProvider.overrideWith((ref) => Stream.value(<StudyEntry>[])),
     ], child: const StudyApp()));

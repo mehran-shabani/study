@@ -9,6 +9,8 @@ import '../common/empty_state.dart';
 import 'today_progress_card.dart';
 import '../../core/utils.dart';
 import 'entry_dialog.dart';
+import 'study_timer_actions.dart';
+import '../../data/study_timer.dart';
 
 class TrackerScreen extends ConsumerWidget {
   const TrackerScreen({super.key});
@@ -52,7 +54,7 @@ class TrackerScreen extends ConsumerWidget {
                 final dates = grouped.keys.toList()
                   ..sort((a, b) => b.compareTo(a));
                 return ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 240),
                   itemCount: dates.isEmpty ? 2 : dates.length + 2,
                   itemBuilder: (context, index) {
                     if (index == 0) {
@@ -89,13 +91,14 @@ class TrackerScreen extends ConsumerWidget {
                 onAction: () => ref.invalidate(studyEntriesProvider),
               ),
             ),
-      floatingActionButton: selectedWorkspace != null
-          ? FloatingActionButton.extended(
-              onPressed: () => _showEntryDialog(context, selectedWorkspace.id!),
-              icon: const Icon(Icons.add),
-              label: Text(l10n.addEntry),
-            )
-          : null,
+      floatingActionButton: StudyTimerActions(
+        workspace: selectedWorkspace,
+        onManual: () {
+          if (selectedWorkspace != null) {
+            _showEntryDialog(context, selectedWorkspace.id!);
+          }
+        },
+      ),
     );
   }
 
@@ -143,8 +146,10 @@ class TrackerScreen extends ConsumerWidget {
         entry.title,
         style: const TextStyle(fontWeight: FontWeight.w500),
       ),
-      subtitle: Text(l10n.hoursValue(AppUtils.formatHourValue(entry.hours,
-          locale: Localizations.localeOf(context).toString()))),
+      subtitle: Text(entry.hours < 0.25
+          ? '${l10n.duration}: ${formatTimerDuration(Duration(microseconds: (entry.hours * Duration.microsecondsPerHour).round()))}'
+          : l10n.hoursValue(AppUtils.formatHourValue(entry.hours,
+              locale: Localizations.localeOf(context).toString()))),
       trailing: PopupMenuButton<String>(
         onSelected: (value) async {
           if (value == 'edit') {
