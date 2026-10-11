@@ -107,5 +107,13 @@
         "type": "String"
       }
     }
-  }
+  },
+  "startTimer": "Start study timer",
+  "stopTimer": "Stop timer",
+  "saveTimer": "Save timed study",
+  "saveTimerLater": "Save later",
+  "timerSplitDays": "Time is recorded separately for each day.",
+  "timerTooShort": "Study for at least one second before stopping.",
+  "timerActionFailed": "Could not update the timer. Try again.",
+  "finishTimerFirst": "Save your timed study before deleting this plan."
 }
