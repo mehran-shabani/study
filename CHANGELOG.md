@@ -1,4 +1,30 @@
 ## v1.0.2
+* feat: add persistent study timer and isolate workspace widget test
+* fix: preserve stopped timer on write failure and extend regression coverage
+* Merge pull request #6 from mehran-shabani/feat/study-timer
+* Merge branch 'mehran-shabani:main' into main
+
+## v1.0.1
+* feat: Initialize project with core features and CI
+* Bump intl dependency to version 0.19.0
+* Merge pull request #1 from mehran-shabani/cursor/build-study-app-with-flutter-5be1
+* Refactor: Update theme colors and workspace dialog logic
+* Fix: Improve date validation to enforce yyyy-MM-dd
+* Update upload-artifact action to v4
+* chore(ci): add auto-release workflow and initialize VERSION/CHANGELOG
+* Add release automation documentation
+* Merge pull request #2 from mehran-shabani/cursor/analyze-project-for-deprecated-members-dc0c
+* chore(release): v1.0.1
+* feat: Add auto release for APK builds
+* fix(android): add missing Android resources (themes and launcher icon)
+* Merge pull request #3 from mehran-shabani/cursor/automate-release-tag-and-apk-build-4d69
+* chore(release): v1.0.2
+* feat: configurable daily targets, Jalali dates and CSV export
+* Merge pull request #4 from mehran-shabani/feat/daily-target-jalali-csv
+* feat: streamline daily study logging and plan navigation
+* Merge pull request #5 from mehran-shabani/feat/study-ux
+
+## v1.0.2
 * feat: Add auto release for APK builds
 * fix(android): add missing Android resources (themes and launcher icon)
 * Merge pull request #3 from mehran-shabani/cursor/automate-release-tag-and-apk-build-4d69
