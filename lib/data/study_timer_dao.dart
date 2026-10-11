@@ -2,6 +2,15 @@ import 'database.dart';
 import 'study_timer.dart';
 
 class StudyTimerDao {
+  Future<void> discard(StudyTimerSession session) async {
+    final removed = await (await DatabaseService.database).delete(
+      'study_timer',
+      where: 'id = 1 AND started_at = ?',
+      whereArgs: [session.toMap()['started_at']],
+    );
+    if (removed != 1) throw StateError('Timer session no longer exists.');
+  }
+
   Future<StudyTimerSession?> load() async {
     final rows = await (await DatabaseService.database).query('study_timer');
     return rows.isEmpty ? null : StudyTimerSession.fromMap(rows.single);

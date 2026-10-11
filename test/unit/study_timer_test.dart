@@ -4,6 +4,71 @@ import 'package:study/data/study_timer_provider.dart';
 import '../support/memory_timer_dao.dart';
 
 void main() {
+  test('pauses spanning midnight and restarts never count as study', () {
+    var session = StudyTimerSession(
+        workspaceId: 1,
+        workspaceName: 'قلب',
+        startedAt: DateTime(2026, 10, 11, 23, 50));
+    session = session.pause(DateTime(2026, 10, 11, 23, 55));
+    expect(session.isPaused, isTrue);
+    expect(
+        session.elapsedAt(DateTime(2026, 10, 13)), const Duration(minutes: 5));
+    session = StudyTimerSession.fromMap(session.toMap());
+    expect(session.isPaused, isTrue);
+    session = session.resume(DateTime(2026, 10, 12, 0, 10));
+    session = session.pause(DateTime(2026, 10, 12, 0, 15));
+    session = session.resume(DateTime(2026, 10, 12, 0, 20));
+    session = session.stop(DateTime(2026, 10, 12, 0, 25));
+    expect(session.isStopped, isTrue);
+    expect(
+        session.elapsedAt(DateTime(2026, 10, 15)), const Duration(minutes: 15));
+    final entries = session.entriesFor('قلب');
+    expect(entries.map((e) => e.entryDate), ['2026-10-11', '2026-10-12']);
+    expect(entries.map((e) => e.hours), [5 / 60, 10 / 60]);
+    expect(session.resume(DateTime(2026, 10, 14)), same(session));
+  });
+
+  test('controller restores pause and discards without saving entries',
+      () async {
+    var now = DateTime(2026, 10, 11);
+    final dao = MemoryTimerDao();
+    var controller = StudyTimerController(dao, now: () => now);
+    await controller.ready;
+    await controller.start(1, 'قلب');
+    now = now.add(const Duration(seconds: 30));
+    expect(await controller.pause(), isTrue);
+    controller.dispose();
+    now = now.add(const Duration(hours: 2));
+    controller = StudyTimerController(dao, now: () => now);
+    addTearDown(controller.dispose);
+    await controller.ready;
+    expect(
+        controller.state.session!.elapsedAt(now), const Duration(seconds: 30));
+    expect(await controller.save('قلب'), isFalse);
+    expect(await controller.resume(), isTrue);
+    now = now.add(const Duration(seconds: 10));
+    expect(
+        controller.state.session!.elapsedAt(now), const Duration(seconds: 40));
+    dao.failDiscard = true;
+    expect(await controller.discard(), isFalse);
+    expect(controller.state.session, isNotNull);
+    dao.failDiscard = false;
+    expect(await controller.discard(), isTrue);
+    expect(controller.state.session, isNull);
+    expect(dao.entries, isEmpty);
+    expect(await controller.start(2, 'ریه'), isTrue);
+  });
+
+  test('stop while paused saves only active time', () {
+    final session = StudyTimerSession(
+            workspaceId: 1,
+            workspaceName: 'قلب',
+            startedAt: DateTime(2026, 10, 11))
+        .pause(DateTime(2026, 10, 11, 0, 1))
+        .stop(DateTime(2026, 10, 12));
+    expect(session.entriesFor('قلب').single.entryDate, '2026-10-11');
+    expect(session.entriesFor('قلب').single.hours, 1 / 60);
+  });
   test(
       'a failed stop write freezes time and the later save retries persistence',
       () async {

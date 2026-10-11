@@ -11,6 +11,73 @@ import 'package:study/data/study_timer.dart';
 import 'package:study/data/study_timer_dao.dart';
 
 void main() {
+  test('version 3 pending timer upgrades and persists pause history', () async {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+    final directory = await Directory.systemTemp.createTemp('study_timer_v3_');
+    await databaseFactory.setDatabasesPath(directory.path);
+    try {
+      final oldDb = await openDatabase(
+          path.join(directory.path, AppConstants.dbName),
+          version: 3, onCreate: (db, _) async {
+        await db.execute('CREATE TABLE workspaces (id INTEGER PRIMARY KEY, '
+            'name TEXT NOT NULL, start_date TEXT NOT NULL, end_date TEXT NOT NULL, '
+            'daily_target_hours REAL NOT NULL DEFAULT 4.0)');
+        await db.execute('CREATE TABLE study_entries (id INTEGER PRIMARY KEY, '
+            'workspace_id INTEGER NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE, '
+            'entry_date TEXT NOT NULL, title TEXT NOT NULL, hours REAL NOT NULL)');
+        await db.execute('CREATE TABLE study_timer (id INTEGER PRIMARY KEY, '
+            'workspace_id INTEGER NOT NULL REFERENCES workspaces(id) ON DELETE RESTRICT, '
+            'workspace_name TEXT NOT NULL, started_at TEXT NOT NULL, stopped_at TEXT, '
+            "subject TEXT NOT NULL DEFAULT '')");
+        await db.insert(
+            'workspaces',
+            const Workspace(
+                    id: 1,
+                    name: 'قلب',
+                    startDate: '2026-10-01',
+                    endDate: '2026-10-31')
+                .toMap());
+        await db.insert('study_timer', {
+          'id': 1,
+          'workspace_id': 1,
+          'workspace_name': 'قلب',
+          'started_at': DateTime(2026, 10, 11).toUtc().toIso8601String(),
+          'stopped_at': null,
+          'subject': 'مرور',
+        });
+      });
+      await oldDb.close();
+      final dao = StudyTimerDao();
+      var session = (await dao.load())!;
+      expect(session.isRunning, isTrue);
+      expect(session.subject, 'مرور');
+      session = session.pause(DateTime(2026, 10, 11, 0, 2));
+      await dao.update(session);
+      await DatabaseService.close();
+      session = (await dao.load())!;
+      expect(session.isPaused, isTrue);
+      expect(session.elapsedAt(DateTime(2026, 10, 12)),
+          const Duration(minutes: 2));
+      session = session
+          .resume(DateTime(2026, 10, 12))
+          .stop(DateTime(2026, 10, 12, 0, 1));
+      await dao.update(session);
+      await dao.finish(session, session.subject);
+      expect((await StudyEntryDao().getByWorkspace(1)).length, 2);
+      session = StudyTimerSession(
+          workspaceId: 1,
+          workspaceName: 'قلب',
+          startedAt: DateTime(2026, 10, 12, 1));
+      await dao.start(session);
+      await dao.discard(session);
+      expect(await dao.load(), isNull);
+      expect((await StudyEntryDao().getByWorkspace(1)).length, 2);
+    } finally {
+      await DatabaseService.close();
+      await directory.delete(recursive: true);
+    }
+  });
   test('version 1 upgrade retains sessions and persists editable daily targets',
       () async {
     sqfliteFfiInit();
@@ -47,7 +114,7 @@ void main() {
       await dao.update(workspace.copyWith(dailyTargetHours: 7.5));
       await DatabaseService.close();
       expect((await dao.getById(1))!.dailyTargetHours, 7.5);
-      expect(await (await DatabaseService.database).getVersion(), 3);
+      expect(await (await DatabaseService.database).getVersion(), 4);
     } finally {
       await DatabaseService.close();
       await directory.delete(recursive: true);

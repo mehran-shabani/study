@@ -115,5 +115,18 @@
   "timerSplitDays": "Time is recorded separately for each day.",
   "timerTooShort": "Study for at least one second before stopping.",
   "timerActionFailed": "Could not update the timer. Try again.",
-  "finishTimerFirst": "Save your timed study before deleting this plan."
+  "finishTimerFirst": "Save your timed study before deleting this plan.",
+  "studyTimer": "Study timer",
+  "timerReady": "Ready to study",
+  "timerRunning": "Studying",
+  "timerPaused": "Paused",
+  "timerFinished": "Session finished",
+  "pauseTimer": "Pause",
+  "resumeTimer": "Continue",
+  "discardTimer": "Delete timer session",
+  "discardTimerPrompt": "Delete this timer session without recording it? Your previously saved studies will stay intact.",
+  "timerTimeUnits": "Hours : minutes : seconds",
+  "timerPauseHint": "Take a break with Pause. Breaks are excluded from your study time.",
+  "timerFinishedHint": "The timer has stopped. Save your subject to record this session.",
+  "timerBackgroundHint": "You can leave this screen. Your timer is preserved, even after closing the app."
 }
