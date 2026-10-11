@@ -47,5 +47,12 @@
   "invalidInput": "ورودی نامعتبر",
   "requiredField": "این فیلد الزامی است",
   "from": "از",
-  "to": "تا"
+  "to": "تا",
+  "dailyTargetHours": "هدف روزانه (ساعت)",
+  "dailyTarget": "هدف روزانه",
+  "todayProgress": "مطالعه امروز / هدف",
+  "targetRange": "عدد بین ۰٫۲۵ تا ۲۴ وارد کنید",
+  "exportCsv": "خروجی CSV",
+  "exportFailed": "دریافت خروجی انجام نشد؛ دوباره تلاش کنید.",
+  "jalaliDateHint": "سال/ماه/روز (شمسی)"
 }

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../data/models.dart';
 import '../../data/providers.dart';
+import '../common/export_csv_button.dart';
 import '../../core/utils.dart';
 import 'entry_dialog.dart';
 
@@ -18,6 +19,10 @@ class TrackerScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.tracker),
+        actions: [
+          if (selectedWorkspace != null)
+            ExportCsvButton(workspace: selectedWorkspace),
+        ],
         bottom: selectedWorkspace != null
             ? PreferredSize(
                 preferredSize: const Size.fromHeight(48),
@@ -34,7 +39,10 @@ class TrackerScreen extends ConsumerWidget {
                       Expanded(
                         child: Text(
                           selectedWorkspace.name,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(
                                 color: Theme.of(context).colorScheme.primary,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -54,7 +62,8 @@ class TrackerScreen extends ConsumerWidget {
                   Icon(
                     Icons.folder_off_outlined,
                     size: 64,
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                    color:
+                        Theme.of(context).colorScheme.primary.withOpacity(0.5),
                   ),
                   const SizedBox(height: 16),
                   Padding(
@@ -70,6 +79,28 @@ class TrackerScreen extends ConsumerWidget {
             )
           : entriesAsync.when(
               data: (entries) {
+                final todayHours = entries
+                    .where((entry) => entry.entryDate == AppUtils.today())
+                    .fold<double>(0, (sum, entry) => sum + entry.hours);
+                final target = selectedWorkspace.dailyTargetHours;
+                final todayCard = Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('${l10n.todayProgress}: '
+                            '${AppUtils.formatHours(todayHours)} / ${AppUtils.formatHours(target)}'),
+                        const SizedBox(height: 8),
+                        LinearProgressIndicator(
+                          value: target > 0
+                              ? (todayHours / target).clamp(0.0, 1.0)
+                              : 0,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
                 if (entries.isEmpty) {
                   return Center(
                     child: Column(
@@ -78,8 +109,13 @@ class TrackerScreen extends ConsumerWidget {
                         Icon(
                           Icons.note_add_outlined,
                           size: 64,
-                          color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withOpacity(0.5),
                         ),
+                        const SizedBox(height: 16),
+                        todayCard,
                         const SizedBox(height: 16),
                         Text(
                           l10n.noEntries,
@@ -88,9 +124,12 @@ class TrackerScreen extends ConsumerWidget {
                         const SizedBox(height: 8),
                         Text(
                           l10n.addFirstEntry,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                  ),
                         ),
                       ],
                     ),
@@ -100,16 +139,20 @@ class TrackerScreen extends ConsumerWidget {
                 // Group entries by date
                 final groupedEntries = <String, List<StudyEntry>>{};
                 for (final entry in entries) {
-                  groupedEntries.putIfAbsent(entry.entryDate, () => []).add(entry);
+                  groupedEntries
+                      .putIfAbsent(entry.entryDate, () => [])
+                      .add(entry);
                 }
 
-                final dates = groupedEntries.keys.toList()..sort((a, b) => b.compareTo(a));
+                final dates = groupedEntries.keys.toList()
+                  ..sort((a, b) => b.compareTo(a));
 
                 return ListView.builder(
                   padding: const EdgeInsets.all(16),
-                  itemCount: dates.length,
+                  itemCount: dates.length + 1,
                   itemBuilder: (context, index) {
-                    final date = dates[index];
+                    if (index == 0) return todayCard;
+                    final date = dates[index - 1];
                     final dateEntries = groupedEntries[date]!;
                     final totalHours = dateEntries.fold<double>(
                       0.0,
@@ -124,7 +167,9 @@ class TrackerScreen extends ConsumerWidget {
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primaryContainer,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primaryContainer,
                               borderRadius: const BorderRadius.only(
                                 topLeft: Radius.circular(12),
                                 topRight: Radius.circular(12),
@@ -135,14 +180,21 @@ class TrackerScreen extends ConsumerWidget {
                                 Icon(
                                   Icons.calendar_today,
                                   size: 20,
-                                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onPrimaryContainer,
                                 ),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
-                                    date,
-                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                    AppUtils.displayDate(date),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimaryContainer,
                                           fontWeight: FontWeight.bold,
                                         ),
                                   ),
@@ -153,13 +205,16 @@ class TrackerScreen extends ConsumerWidget {
                                     vertical: 4,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.primary,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                     borderRadius: BorderRadius.circular(16),
                                   ),
                                   child: Text(
                                     AppUtils.formatHours(totalHours),
                                     style: TextStyle(
-                                      color: Theme.of(context).colorScheme.onPrimary,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -167,7 +222,8 @@ class TrackerScreen extends ConsumerWidget {
                               ],
                             ),
                           ),
-                          ...dateEntries.map((entry) => _buildEntryTile(context, ref, entry)),
+                          ...dateEntries.map(
+                              (entry) => _buildEntryTile(context, ref, entry)),
                         ],
                       ),
                     );
@@ -189,7 +245,8 @@ class TrackerScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildEntryTile(BuildContext context, WidgetRef ref, StudyEntry entry) {
+  Widget _buildEntryTile(
+      BuildContext context, WidgetRef ref, StudyEntry entry) {
     final l10n = AppLocalizations.of(context)!;
 
     return ListTile(
@@ -278,7 +335,9 @@ class TrackerScreen extends ConsumerWidget {
     );
 
     if (confirmed == true && entry.id != null) {
-      await ref.read(studyEntryNotifierProvider.notifier).deleteEntry(entry.id!);
+      await ref
+          .read(studyEntryNotifierProvider.notifier)
+          .deleteEntry(entry.id!);
     }
   }
 }

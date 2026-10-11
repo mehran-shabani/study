@@ -1,15 +1,19 @@
+import '../core/constants.dart';
+
 /// Data models for the Study app
 class Workspace {
   final int? id;
   final String name;
   final String startDate; // yyyy-MM-dd
   final String endDate; // yyyy-MM-dd
+  final double dailyTargetHours;
 
   const Workspace({
     this.id,
     required this.name,
     required this.startDate,
     required this.endDate,
+    this.dailyTargetHours = AppConstants.avgDailyTargetHours,
   });
 
   Map<String, dynamic> toMap() {
@@ -18,6 +22,7 @@ class Workspace {
       'name': name,
       'start_date': startDate,
       'end_date': endDate,
+      'daily_target_hours': dailyTargetHours,
     };
   }
 
@@ -27,6 +32,8 @@ class Workspace {
       name: map['name'] as String,
       startDate: map['start_date'] as String,
       endDate: map['end_date'] as String,
+      dailyTargetHours: (map['daily_target_hours'] as num?)?.toDouble() ??
+          AppConstants.avgDailyTargetHours,
     );
   }
 
@@ -35,12 +42,14 @@ class Workspace {
     String? name,
     String? startDate,
     String? endDate,
+    double? dailyTargetHours,
   }) {
     return Workspace(
       id: id ?? this.id,
       name: name ?? this.name,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
+      dailyTargetHours: dailyTargetHours ?? this.dailyTargetHours,
     );
   }
 
@@ -56,12 +65,13 @@ class Workspace {
         other.id == id &&
         other.name == name &&
         other.startDate == startDate &&
-        other.endDate == endDate;
+        other.endDate == endDate &&
+        other.dailyTargetHours == dailyTargetHours;
   }
 
   @override
   int get hashCode {
-    return Object.hash(id, name, startDate, endDate);
+    return Object.hash(id, name, startDate, endDate, dailyTargetHours);
   }
 }
 
@@ -96,7 +106,7 @@ class StudyEntry {
       workspaceId: map['workspace_id'] as int,
       entryDate: map['entry_date'] as String,
       title: map['title'] as String,
-      hours: map['hours'] as double,
+      hours: (map['hours'] as num).toDouble(),
     );
   }
 

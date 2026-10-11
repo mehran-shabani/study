@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import '../common/jalali_date_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../data/models.dart';
@@ -23,14 +23,17 @@ class EntryDialog extends ConsumerStatefulWidget {
 class _EntryDialogState extends ConsumerState<EntryDialog> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _dateController;
+  late DateTime _entryDate;
   late TextEditingController _titleController;
   late TextEditingController _hoursController;
 
   @override
   void initState() {
     super.initState();
+    _entryDate =
+        AppUtils.parseDate(widget.entry?.entryDate ?? AppUtils.today());
     _dateController = TextEditingController(
-      text: widget.entry?.entryDate ?? AppUtils.today(),
+      text: AppUtils.displayDate(AppUtils.formatDate(_entryDate)),
     );
     _titleController = TextEditingController(text: widget.entry?.title ?? '');
     _hoursController = TextEditingController(
@@ -64,9 +67,10 @@ class _EntryDialogState extends ConsumerState<EntryDialog> {
                 decoration: InputDecoration(
                   labelText: l10n.entryDate,
                   prefixIcon: const Icon(Icons.calendar_today_outlined),
-                  hintText: 'yyyy-MM-dd',
+                  hintText: l10n.jalaliDateHint,
                 ),
-                validator: AppUtils.validateDate,
+                validator: (_) =>
+                    AppUtils.validateDate(AppUtils.formatDate(_entryDate)),
                 onTap: () => _selectDate(context),
                 readOnly: true,
               ),
@@ -90,10 +94,8 @@ class _EntryDialogState extends ConsumerState<EntryDialog> {
                   hintText: '0.25 - 24.0',
                 ),
                 validator: AppUtils.validateHours,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
-                ],
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
               ),
             ],
           ),
@@ -113,20 +115,13 @@ class _EntryDialogState extends ConsumerState<EntryDialog> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
-    final initialDate = _dateController.text.isEmpty
-        ? DateTime.now()
-        : AppUtils.parseDate(_dateController.text);
+    final picked = await selectJalaliDate(context, initialDate: _entryDate);
 
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: initialDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2030),
-    );
-
-    if (picked != null) {
+    if (picked != null && mounted) {
       setState(() {
-        _dateController.text = AppUtils.formatDate(picked);
+        _entryDate = picked;
+        _dateController.text =
+            AppUtils.displayDate(AppUtils.formatDate(picked));
       });
     }
   }
@@ -137,17 +132,17 @@ class _EntryDialogState extends ConsumerState<EntryDialog> {
     final entry = StudyEntry(
       id: widget.entry?.id,
       workspaceId: widget.workspaceId,
-      entryDate: _dateController.text.trim(),
+      entryDate: AppUtils.formatDate(_entryDate),
       title: _titleController.text.trim(),
-      hours: double.parse(_hoursController.text.trim()),
+      hours: double.parse(AppUtils.normalizeNumber(_hoursController.text)),
     );
 
     final notifier = ref.read(studyEntryNotifierProvider.notifier);
     final success = widget.entry == null
-        ? await notifier.createEntry(entry)
+        ? await notifier.createEntry(entry) != null
         : await notifier.updateEntry(entry);
 
-    if (mounted && success != null) {
+    if (mounted && success) {
       Navigator.of(context).pop();
     }
   }
