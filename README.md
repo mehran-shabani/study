@@ -14,6 +14,9 @@ A production-ready Flutter application for tracking study sessions and visualizi
   - Daily timeline chart
   - Hours aggregation by title
 - 🌙 **Dark Mode**: Full Material 3 theme support with light and dark modes
+- ✨ **More insights**: Keep the existing Reports view and open More for an
+  adjustable tomorrow plan, spaced-review candidates, completed-week trends,
+  and study-time goal outlook. See [research and calculation notes](docs/ANALYTICS_MORE.md).
 - 🌍 **Internationalization**: Support for English and Farsi (Persian)
 - 💾 **Offline-First**: All data stored locally with SQLite
 

@@ -9,6 +9,7 @@ import '../../domain/helpers.dart';
 import 'progress_card.dart';
 import 'timeline_chart.dart';
 import 'title_chart.dart';
+import 'analytics_more_screen.dart';
 
 class AnalyticsScreen extends ConsumerWidget {
   const AnalyticsScreen({super.key});
@@ -24,6 +25,17 @@ class AnalyticsScreen extends ConsumerWidget {
         title: Text(l10n.analytics),
         actions: [
           if (selectedWorkspace != null)
+            TextButton.icon(
+              key: const ValueKey('analytics-more'),
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const AnalyticsMoreScreen(),
+                ),
+              ),
+              icon: const Icon(Icons.auto_awesome_outlined, size: 18),
+              label: Text(l10n.analyticsMore),
+            ),
+          if (selectedWorkspace != null)
             ExportCsvButton(workspace: selectedWorkspace),
         ],
         bottom: const PreferredSize(
@@ -37,7 +49,8 @@ class AnalyticsScreen extends ConsumerWidget {
               title: l10n.chooseWorkspace,
               message: l10n.selectWorkspace,
               actionLabel: l10n.workspaces,
-              onAction: () => ref.read(mainTabProvider.notifier).state = 0)
+              onAction: () => ref.read(mainTabProvider.notifier).state = 0,
+            )
           : entriesAsync.when(
               data: (entries) {
                 final progress = calcProgress(entries, selectedWorkspace);
@@ -56,12 +69,13 @@ class AnalyticsScreen extends ConsumerWidget {
                       ),
                       if (entries.isEmpty)
                         EmptyState(
-                            icon: Icons.menu_book_outlined,
-                            title: l10n.noEntries,
-                            message: l10n.addFirstEntry,
-                            actionLabel: l10n.addEntry,
-                            onAction: () =>
-                                ref.read(mainTabProvider.notifier).state = 1)
+                          icon: Icons.menu_book_outlined,
+                          title: l10n.noEntries,
+                          message: l10n.addFirstEntry,
+                          actionLabel: l10n.addEntry,
+                          onAction: () =>
+                              ref.read(mainTabProvider.notifier).state = 1,
+                        )
                       else ...[
                         const SizedBox(height: 24),
                         Text(
@@ -84,10 +98,11 @@ class AnalyticsScreen extends ConsumerWidget {
               },
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (_, __) => EmptyState(
-                  icon: Icons.refresh,
-                  title: l10n.loadFailed,
-                  actionLabel: l10n.retry,
-                  onAction: () => ref.invalidate(studyEntriesProvider)),
+                icon: Icons.refresh,
+                title: l10n.loadFailed,
+                actionLabel: l10n.retry,
+                onAction: () => ref.invalidate(studyEntriesProvider),
+              ),
             ),
     );
   }

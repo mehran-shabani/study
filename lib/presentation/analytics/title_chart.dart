@@ -14,31 +14,42 @@ class TitleChart extends StatelessWidget {
     final locale = Localizations.localeOf(context).toString();
     final entries = titleHours.entries.take(10).toList();
     if (entries.isEmpty) return Text(l10n.noDataAvailable);
-    final maxHours =
-        entries.map((entry) => entry.value).reduce((a, b) => a > b ? a : b);
+    final maxHours = entries
+        .map((entry) => entry.value)
+        .reduce((a, b) => a > b ? a : b);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(children: [
-          for (final entry in entries)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: Column(
+        child: Column(
+          children: [
+            for (final entry in entries)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                              child: Text(entry.key,
-                                  style:
-                                      Theme.of(context).textTheme.titleSmall)),
-                          const SizedBox(width: 12),
-                          Flexible(
-                              child: Text(l10n.hoursValue(
-                                  AppUtils.formatHourValue(entry.value,
-                                      locale: locale)))),
-                        ]),
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            entry.key,
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Flexible(
+                          child: Text(
+                            l10n.hoursValue(
+                              AppUtils.formatHourValue(
+                                entry.value,
+                                locale: locale,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 8),
                     LinearProgressIndicator(
                       value: maxHours > 0
@@ -46,14 +57,14 @@ class TitleChart extends StatelessWidget {
                           : 0,
                       minHeight: 8,
                       borderRadius: BorderRadius.circular(8),
-                      semanticsLabel: entry.key,
-                      semanticsValue: l10n.hoursValue(AppUtils.formatHourValue(
-                          entry.value,
-                          locale: locale)),
+                      semanticsLabel:
+                          '${entry.key}, ${l10n.hoursValue(AppUtils.formatHourValue(entry.value, locale: locale))}',
                     ),
-                  ]),
-            ),
-        ]),
+                  ],
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

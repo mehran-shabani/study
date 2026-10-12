@@ -168,5 +168,158 @@
         "type": "int"
       }
     }
+  },
+  "analyticsMore": "More",
+  "analyticsMoreTitle": "More insights",
+  "insightsIntro": "Turn your study history into a practical next step.",
+  "tomorrowPlan": "Tomorrow’s plan",
+  "insightMinutes": "{value} minutes",
+  "insightDays": "{value} days",
+  "planNotStarted": "This plan starts on {date}. Tomorrow is outside its dates.",
+  "planFinished": "Tomorrow is outside this plan. Extend the dates to continue.",
+  "tomorrowStartReason": "No study was logged in the last completed week. Start with up to one hour, within your daily target.",
+  "tomorrowHistoryReason": "Based on your typical active day last week, with a small increase up to your daily target.",
+  "tomorrowAvailableTime": "Your available time tomorrow",
+  "resetSuggestion": "Reset to suggested time",
+  "tomorrowDraftNote": "This is a preview. Adjusting it does not change your daily target or log study time.",
+  "reviewBlock": "Review {subject} · {duration}",
+  "retrievalInstruction": "Close your notes, recall key ideas or answer a few questions, then check and correct your answers.",
+  "focusBlock": "Study {subject} · {duration}",
+  "chooseStudySubject": "a subject you choose",
+  "focusInstruction": "Choose one specific topic. Split longer sessions into manageable blocks and take breaks when needed.",
+  "endSessionCheck": "Finish with a quick check",
+  "endSessionInstruction": "Use the last few minutes of the study block to explain what you learned without notes and identify one point to review.",
+  "goToStudy": "Go to Study",
+  "completedWeek": "Your last completed week",
+  "completedWeekNote": "Up to seven completed days within this plan. Today is excluded so a partial day does not lower the average.",
+  "noCompletedDays": "No completed days in this plan yet.",
+  "dailyAverage": "Daily average",
+  "activeStudyDays": "Days with logged study",
+  "goalMetDays": "Days reaching your target",
+  "studyStreak": "Consecutive study days",
+  "weekIncrease": "{duration} more than the previous seven days.",
+  "weekDecrease": "{duration} less than the previous seven days. Choose one manageable step for tomorrow.",
+  "weekUnchanged": "The same logged time as the previous seven days.",
+  "weekComparisonPending": "A week-to-week comparison needs 14 completed days within this plan.",
+  "missingDaysNote": "Days without a log count as zero; they may be unrecorded study. Goal days use your current daily target.",
+  "reviewCandidates": "Subjects to revisit",
+  "reviewCandidatesNote": "Subjects with the oldest last study date appear first. Use them as a starting point for spaced review.",
+  "reviewNeedsHistory": "Log a subject to get personalized review suggestions.",
+  "lastStudied": "Last logged: {date} · {days} days ago",
+  "reviewNotMastery": "Time since a log does not measure forgetting or difficulty. Review a topic sooner if recall feels hard.",
+  "goalOutlook": "Your study-time goal",
+  "timeGoalNote": "This tracks planned study hours, not mastery or exam performance.",
+  "remainingStudy": "{duration} remaining",
+  "daysAfterToday": "{days} days available from tomorrow within this plan.",
+  "requiredPace": "To reach the time goal: {duration} per day from tomorrow.",
+  "paceImpossible": "This would require more than 24 hours a day. Extend the dates or revise the daily target.",
+  "paceNeedsAdjustment": "The required pace is much higher than your suggested next step. Consider extending the dates or revising the target instead of rushing to catch up.",
+  "goalPeriodEnded": "After today, there are no days left in this plan. Edit it if you want to continue.",
+  "timeGoalComplete": "You have reached the planned study-time goal.",
+  "estimatedGoalDate": "At the last week’s average, estimated time-goal completion: {date}.",
+  "forecastNeedsHistory": "An estimate needs seven completed days and some logged study in that period.",
+  "forecastTooDistant": "At this pace the estimate is over ten years away. Log more study or revise the goal for a useful estimate.",
+  "forecastNote": "This assumes your recent daily average continues, including days without logs. The estimate changes with new study logs.",
+  "betterLearning": "Make your study more effective",
+  "retrievalTitle": "Recall before rereading",
+  "retrievalTip": "Try answering questions or explaining a topic from memory, then check your notes and correct mistakes.",
+  "spacingTitle": "Return to a topic across days",
+  "spacingTip": "Revisit material on different days. Adapt the gap to your recall and time until assessment.",
+  "reflectionTitle": "Choose a clear next step",
+  "reflectionTip": "After studying, identify what you can explain, where you made a mistake, and what to practice next.",
+  "insightMethod": "How suggestions work · sources",
+  "insightMethodDetails": "Spacing and retrieval advice is informed by learning research. Time suggestions are adjustable app rules: up to one hour when restarting, otherwise 25% above the median active day in the last seven completed days, rounded down to a quarter-hour and capped at your daily target. If an older subject is available, 25% of tomorrow’s time is reserved for review. These percentages are design choices, not validated optimal study doses. Only this plan’s positive logged hours within its dates and up to today count. Future entries are excluded. Suggestions work offline.",
+  "@insightMinutes": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "@insightDays": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "@planNotStarted": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@reviewBlock": {
+    "placeholders": {
+      "subject": {
+        "type": "String"
+      },
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "@focusBlock": {
+    "placeholders": {
+      "subject": {
+        "type": "String"
+      },
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "@weekIncrease": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "@weekDecrease": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "@lastStudied": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "@remainingStudy": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "@daysAfterToday": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "@requiredPace": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "@estimatedGoalDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
   }
 }
