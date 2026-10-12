@@ -7,6 +7,8 @@ A production-ready Flutter application for tracking study sessions and visualizi
 - 📚 **Workspace Management**: Create and manage unlimited study workspaces with start/end dates
 - ⏱️ **Study Logging**: Track daily study sessions with title, date, and hours
 - 🕒 **Study Timer**: Full-screen stopwatch with start, pause, continue, stop and discard
+- 🔔 **Awareness alarm**: Increasing beep counts every 15 active study minutes, including screen-off study
+- 💾 **Backup and transfer**: Full JSON backup and import of older CSV exports
 - 📊 **Analytics**: Visualize progress with three interactive charts:
   - Overall progress percentage
   - Daily timeline chart
@@ -23,9 +25,9 @@ A production-ready Flutter application for tracking study sessions and visualizi
 
 ### Prerequisites
 
-- Flutter SDK 3.22.x or higher
-- Dart SDK 3.0.0 or higher
-- Android SDK with API level 21+
+- Flutter SDK 3.44.2
+- Dart SDK 3.9.0 or higher
+- Android SDK 36 (app minimum API follows Flutter)
 - Java 17
 
 ### Installation
@@ -47,6 +49,10 @@ flutter run
 ```
 
 ## Building
+
+For signed local builds in Iran with Myket, fixed signing across local/GitHub
+releases, and data transfer from the old APK, see [راهنمای بیلد و آپدیت](docs/BUILD_FA.md).
+Release builds require `android/key.properties`; they never fall back to debug signing.
 
 ### Debug Build
 ```bash
@@ -201,7 +207,7 @@ This repository uses a GitHub Actions workflow to automatically bump the patch v
 
 Workflow details:
 
-- Workflow file: `.github/workflows/auto-release.yml`
+- Workflow files: `.github/workflows/auto-release.yml` and `.github/workflows/android-release.yml`
 - Actions used: `actions/checkout@v4`, `EndBug/add-and-commit@v9`, `softprops/action-gh-release@v2`
 - Permissions: `contents: write`, `packages: write`
 

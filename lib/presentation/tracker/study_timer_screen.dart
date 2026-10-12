@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:study/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/utils.dart';
 import '../../data/models.dart';
 import '../../data/study_timer.dart';
 import '../../data/study_timer_provider.dart';
+import '../../data/study_alarm.dart';
 import 'timer_subject_dialog.dart';
 
 const timerButtonPink = Color(0xFFFFE1EC);
@@ -69,198 +70,297 @@ class _StudyTimerScreenState extends ConsumerState<StudyTimerScreen>
     final status = session == null
         ? l10n.timerReady
         : session.isStopped
-            ? l10n.timerFinished
-            : session.isPaused
-                ? l10n.timerPaused
-                : l10n.timerRunning;
+        ? l10n.timerFinished
+        : session.isPaused
+        ? l10n.timerPaused
+        : l10n.timerRunning;
     final statusIcon = session == null
         ? Icons.schedule_rounded
         : session.isStopped
-            ? Icons.check_circle_outline_rounded
-            : session.isPaused
-                ? Icons.pause_circle_outline_rounded
-                : Icons.play_circle_outline_rounded;
+        ? Icons.check_circle_outline_rounded
+        : session.isPaused
+        ? Icons.pause_circle_outline_rounded
+        : Icons.play_circle_outline_rounded;
     return Scaffold(
       key: const ValueKey('study-timer-screen'),
       appBar: AppBar(title: Text(l10n.studyTimer)),
       body: SafeArea(
-        child: LayoutBuilder(builder: (context, constraints) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
                   minHeight: (constraints.maxHeight - 48)
                       .clamp(0, double.infinity)
-                      .toDouble()),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 480),
-                  child: Column(mainAxisSize: MainAxisSize.min, children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                          color: timerButtonPink,
-                          borderRadius: BorderRadius.circular(24)),
-                      child: Row(mainAxisSize: MainAxisSize.min, children: [
-                        Icon(statusIcon, color: timerButtonInk, size: 20),
-                        const SizedBox(width: 8),
-                        Flexible(
-                            child: Text(status,
-                                style: const TextStyle(
+                      .toDouble(),
+                ),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 480),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: timerButtonPink,
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(statusIcon, color: timerButtonInk, size: 20),
+                              const SizedBox(width: 8),
+                              Flexible(
+                                child: Text(
+                                  status,
+                                  style: const TextStyle(
                                     color: timerButtonInk,
-                                    fontWeight: FontWeight.w600))),
-                      ]),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                        session?.workspaceName ??
-                            widget.workspace?.name ??
-                            l10n.chooseWorkspace,
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.titleLarge),
-                    const SizedBox(height: 32),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 40),
-                      decoration: BoxDecoration(
-                        color: scheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(32),
-                        border: Border.all(color: scheme.outlineVariant),
-                      ),
-                      child: Column(children: [
-                        Semantics(
-                          label: l10n.duration,
-                          value: formatTimerDuration(elapsed),
-                          child: ExcludeSemantics(
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                formatTimerDuration(elapsed),
-                                key: const ValueKey('timer-elapsed'),
-                                textDirection: TextDirection.ltr,
-                                style: theme.textTheme.displayLarge?.copyWith(
-                                    fontSize: 64,
-                                    fontWeight: FontWeight.w500,
-                                    fontFeatures: const [
-                                      ui.FontFeature.tabularFigures()
-                                    ]),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        Text(l10n.timerTimeUnits,
-                            style: theme.textTheme.bodySmall),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 24),
                         Text(
-                            AppUtils.displayDate(AppUtils.formatDate(
-                                session?.startedAt ??
-                                    ref.read(timerClockProvider)())),
-                            style: theme.textTheme.titleSmall),
-                      ]),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                        session?.isStopped == true
-                            ? l10n.timerFinishedHint
-                            : l10n.timerPauseHint,
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.bodyMedium),
-                    const SizedBox(height: 24),
-                    if (state.busy) const LinearProgressIndicator(),
-                    if (state.error != null) ...[
-                      Text(
-                          state.error is TimerTooShortException
-                              ? l10n.timerTooShort
-                              : l10n.timerActionFailed,
+                          session?.workspaceName ??
+                              widget.workspace?.name ??
+                              l10n.chooseWorkspace,
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: scheme.error)),
-                      const SizedBox(height: 12),
-                    ],
-                    Wrap(
-                        alignment: WrapAlignment.center,
-                        spacing: 12,
-                        runSpacing: 12,
-                        children: [
-                          if (session == null)
-                            FilledButton.icon(
-                              style: FilledButton.styleFrom(
-                                  minimumSize: const Size(144, 56)),
-                              key: const ValueKey('timer-start'),
-                              onPressed: state.busy ? null : () => _start(),
-                              icon: const Icon(Icons.play_arrow_rounded),
-                              label: Text(state.error == null
-                                  ? l10n.startTimer
-                                  : l10n.retry),
+                          style: theme.textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: 32),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 40,
+                          ),
+                          decoration: BoxDecoration(
+                            color: scheme.surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(32),
+                            border: Border.all(color: scheme.outlineVariant),
+                          ),
+                          child: Column(
+                            children: [
+                              Semantics(
+                                label: l10n.duration,
+                                value: formatTimerDuration(elapsed),
+                                child: ExcludeSemantics(
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      formatTimerDuration(elapsed),
+                                      key: const ValueKey('timer-elapsed'),
+                                      textDirection: TextDirection.ltr,
+                                      style: theme.textTheme.displayLarge
+                                          ?.copyWith(
+                                            fontSize: 64,
+                                            fontWeight: FontWeight.w500,
+                                            fontFeatures: const [
+                                              ui.FontFeature.tabularFigures(),
+                                            ],
+                                          ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                l10n.timerTimeUnits,
+                                style: theme.textTheme.bodySmall,
+                              ),
+                              const SizedBox(height: 20),
+                              Text(
+                                AppUtils.displayDate(
+                                  AppUtils.formatDate(
+                                    session?.startedAt ??
+                                        ref.read(timerClockProvider)(),
+                                  ),
+                                ),
+                                style: theme.textTheme.titleSmall,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          session?.isStopped == true
+                              ? l10n.timerFinishedHint
+                              : l10n.timerPauseHint,
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: 24),
+                        Card(
+                          child: Column(
+                            children: [
+                              SwitchListTile(
+                                key: const ValueKey('awareness-switch'),
+                                title: Text(l10n.awarenessAlarm),
+                                subtitle: Text(l10n.awarenessDescription),
+                                value: state.alarmEnabled,
+                                onChanged: state.busy
+                                    ? null
+                                    : (enabled) => ref
+                                          .read(studyTimerProvider.notifier)
+                                          .setAlarmEnabled(enabled),
+                              ),
+                              if (state.alarmEnabled &&
+                                  session != null &&
+                                  !session.isStopped)
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                  child: Text(
+                                    l10n.nextAwarenessAlarm(
+                                      StudyAlarmProgress(elapsed).nextBeepCount,
+                                      formatTimerDuration(
+                                        StudyAlarmProgress(elapsed).remaining,
+                                      ),
+                                    ),
+                                    key: const ValueKey('awareness-next'),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              TextButton.icon(
+                                onPressed: state.busy
+                                    ? null
+                                    : ref
+                                          .read(studyTimerProvider.notifier)
+                                          .previewAlarm,
+                                icon: const Icon(Icons.volume_up_outlined),
+                                label: Text(l10n.testAwarenessSound),
+                              ),
+                              if (state.alarmError != null)
+                                Padding(
+                                  padding: const EdgeInsets.all(12),
+                                  child: Text(
+                                    l10n.awarenessFailed,
+                                    style: TextStyle(color: scheme.error),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        if (state.busy) const LinearProgressIndicator(),
+                        if (state.error != null) ...[
+                          Text(
+                            state.error is TimerTooShortException
+                                ? l10n.timerTooShort
+                                : l10n.timerActionFailed,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: scheme.error),
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: 12,
+                          runSpacing: 12,
+                          children: [
+                            if (session == null)
+                              FilledButton.icon(
+                                style: FilledButton.styleFrom(
+                                  minimumSize: const Size(144, 56),
+                                ),
+                                key: const ValueKey('timer-start'),
+                                onPressed: state.busy ? null : () => _start(),
+                                icon: const Icon(Icons.play_arrow_rounded),
+                                label: Text(
+                                  state.error == null
+                                      ? l10n.startTimer
+                                      : l10n.retry,
+                                ),
+                              ),
+                            if (session?.isRunning == true)
+                              OutlinedButton.icon(
+                                style: OutlinedButton.styleFrom(
+                                  minimumSize: const Size(144, 56),
+                                ),
+                                key: const ValueKey('timer-pause'),
+                                onPressed: state.busy
+                                    ? null
+                                    : () => _perform(
+                                        ref
+                                            .read(studyTimerProvider.notifier)
+                                            .pause,
+                                      ),
+                                icon: const Icon(Icons.pause_rounded),
+                                label: Text(l10n.pauseTimer),
+                              ),
+                            if (session?.isPaused == true)
+                              FilledButton.icon(
+                                style: FilledButton.styleFrom(
+                                  minimumSize: const Size(144, 56),
+                                ),
+                                key: const ValueKey('timer-resume'),
+                                onPressed: state.busy
+                                    ? null
+                                    : () => _perform(
+                                        ref
+                                            .read(studyTimerProvider.notifier)
+                                            .resume,
+                                      ),
+                                icon: const Icon(Icons.play_arrow_rounded),
+                                label: Text(l10n.resumeTimer),
+                              ),
+                            if (session != null && !session.isStopped)
+                              FilledButton.icon(
+                                style: FilledButton.styleFrom(
+                                  minimumSize: const Size(144, 56),
+                                ),
+                                key: const ValueKey('timer-stop'),
+                                onPressed: state.busy ? null : _stop,
+                                icon: const Icon(Icons.stop_rounded),
+                                label: Text(l10n.stopTimer),
+                              ),
+                            if (session?.isStopped == true)
+                              FilledButton.icon(
+                                style: FilledButton.styleFrom(
+                                  minimumSize: const Size(144, 56),
+                                ),
+                                key: const ValueKey('timer-save'),
+                                onPressed: state.busy ? null : _showSubject,
+                                icon: const Icon(Icons.check_rounded),
+                                label: Text(l10n.saveTimer),
+                              ),
+                          ],
+                        ),
+                        if (session != null) ...[
+                          const SizedBox(height: 20),
+                          TextButton.icon(
+                            key: const ValueKey('timer-discard'),
+                            onPressed: state.busy ? null : _discard,
+                            style: TextButton.styleFrom(
+                              foregroundColor: scheme.error,
                             ),
-                          if (session?.isRunning == true)
-                            OutlinedButton.icon(
-                              style: OutlinedButton.styleFrom(
-                                  minimumSize: const Size(144, 56)),
-                              key: const ValueKey('timer-pause'),
-                              onPressed: state.busy
-                                  ? null
-                                  : () => _perform(ref
-                                      .read(studyTimerProvider.notifier)
-                                      .pause),
-                              icon: const Icon(Icons.pause_rounded),
-                              label: Text(l10n.pauseTimer),
-                            ),
-                          if (session?.isPaused == true)
-                            FilledButton.icon(
-                              style: FilledButton.styleFrom(
-                                  minimumSize: const Size(144, 56)),
-                              key: const ValueKey('timer-resume'),
-                              onPressed: state.busy
-                                  ? null
-                                  : () => _perform(ref
-                                      .read(studyTimerProvider.notifier)
-                                      .resume),
-                              icon: const Icon(Icons.play_arrow_rounded),
-                              label: Text(l10n.resumeTimer),
-                            ),
-                          if (session != null && !session.isStopped)
-                            FilledButton.icon(
-                              style: FilledButton.styleFrom(
-                                  minimumSize: const Size(144, 56)),
-                              key: const ValueKey('timer-stop'),
-                              onPressed: state.busy ? null : _stop,
-                              icon: const Icon(Icons.stop_rounded),
-                              label: Text(l10n.stopTimer),
-                            ),
-                          if (session?.isStopped == true)
-                            FilledButton.icon(
-                              style: FilledButton.styleFrom(
-                                  minimumSize: const Size(144, 56)),
-                              key: const ValueKey('timer-save'),
-                              onPressed: state.busy ? null : _showSubject,
-                              icon: const Icon(Icons.check_rounded),
-                              label: Text(l10n.saveTimer),
-                            ),
-                        ]),
-                    if (session != null) ...[
-                      const SizedBox(height: 20),
-                      TextButton.icon(
-                        key: const ValueKey('timer-discard'),
-                        onPressed: state.busy ? null : _discard,
-                        style:
-                            TextButton.styleFrom(foregroundColor: scheme.error),
-                        icon: const Icon(Icons.delete_outline_rounded),
-                        label: Text(l10n.discardTimer),
-                      ),
-                    ],
-                    const SizedBox(height: 24),
-                    Text(l10n.timerBackgroundHint,
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.bodySmall),
-                  ]),
+                            icon: const Icon(Icons.delete_outline_rounded),
+                            label: Text(l10n.discardTimer),
+                          ),
+                        ],
+                        const SizedBox(height: 24),
+                        Text(
+                          l10n.timerBackgroundHint,
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
-          );
-        }),
+            );
+          },
+        ),
       ),
     );
   }
@@ -282,11 +382,15 @@ class _StudyTimerScreenState extends ConsumerState<StudyTimerScreen>
     final success = await action();
     if (mounted && !success) {
       final l10n = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
           content: Text(
-              ref.read(studyTimerProvider).error is TimerTooShortException
-                  ? l10n.timerTooShort
-                  : l10n.timerActionFailed)));
+            ref.read(studyTimerProvider).error is TimerTooShortException
+                ? l10n.timerTooShort
+                : l10n.timerActionFailed,
+          ),
+        ),
+      );
     }
     return success;
   }
@@ -304,9 +408,10 @@ class _StudyTimerScreenState extends ConsumerState<StudyTimerScreen>
     _dialogOpen = true;
     try {
       await showDialog<void>(
-          context: context,
-          barrierDismissible: false,
-          builder: (_) => TimerSubjectDialog(session: session));
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => TimerSubjectDialog(session: session),
+      );
     } finally {
       _dialogOpen = false;
     }
@@ -319,23 +424,26 @@ class _StudyTimerScreenState extends ConsumerState<StudyTimerScreen>
     bool? confirmed;
     try {
       confirmed = await showDialog<bool>(
-          context: context,
-          builder: (context) => AlertDialog(
-                title: Text(l10n.discardTimer),
-                content: Text(l10n.discardTimerPrompt),
-                actions: [
-                  TextButton(
-                      onPressed: () => Navigator.of(context).pop(false),
-                      child: Text(l10n.cancel)),
-                  FilledButton(
-                      style: FilledButton.styleFrom(
-                          backgroundColor: Theme.of(context).colorScheme.error,
-                          foregroundColor:
-                              Theme.of(context).colorScheme.onError),
-                      onPressed: () => Navigator.of(context).pop(true),
-                      child: Text(l10n.delete)),
-                ],
-              ));
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(l10n.discardTimer),
+          content: Text(l10n.discardTimerPrompt),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.error,
+                foregroundColor: Theme.of(context).colorScheme.onError,
+              ),
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(l10n.delete),
+            ),
+          ],
+        ),
+      );
     } finally {
       _dialogOpen = false;
     }

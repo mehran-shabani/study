@@ -1,0 +1,5 @@
+<resources>
+    <string name="awareness_channel">آگاهی از زمان مطالعه</string>
+    <string name="awareness_title">تایمر مطالعه فعال است</string>
+    <string name="awareness_next">%1$s · هشدار بعدی: %2$d بوق</string>
+</resources>

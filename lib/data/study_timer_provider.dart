@@ -2,35 +2,55 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'providers.dart';
 import 'study_timer.dart';
 import 'study_timer_dao.dart';
+import 'study_alarm.dart';
+
+final studyAlarmProvider = Provider<StudyAlarm>((ref) => StudyAlarm());
 
 final studyTimerDaoProvider = Provider<StudyTimerDao>((ref) => StudyTimerDao());
 final timerClockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
 
 final studyTimerProvider =
     StateNotifierProvider<StudyTimerController, StudyTimerState>((ref) {
-  return StudyTimerController(
-    ref.watch(studyTimerDaoProvider),
-    now: ref.watch(timerClockProvider),
-    onSaved: () => ref.invalidate(studyEntriesProvider),
-  );
-});
+      return StudyTimerController(
+        ref.watch(studyTimerDaoProvider),
+        now: ref.watch(timerClockProvider),
+        alarm: ref.watch(studyAlarmProvider),
+        onSaved: () => ref.invalidate(studyEntriesProvider),
+      );
+    });
 
 class StudyTimerState {
-  const StudyTimerState({this.session, this.busy = false, this.error});
+  const StudyTimerState({
+    this.session,
+    this.busy = false,
+    this.error,
+    this.alarmEnabled = true,
+    this.alarmError,
+  });
   final StudyTimerSession? session;
   final bool busy;
   final Object? error;
+  final bool alarmEnabled;
+  final Object? alarmError;
 }
 
 class TimerTooShortException implements Exception {}
 
 class StudyTimerController extends StateNotifier<StudyTimerState> {
-  StudyTimerController(this.dao, {required this.now, this.onSaved})
-      : super(const StudyTimerState(busy: true)) {
+  StudyTimerController(
+    this.dao, {
+    required this.now,
+    this.onSaved,
+    StudyAlarm? alarm,
+  }) : alarm = alarm ?? StudyAlarm(),
+       super(const StudyTimerState(busy: true)) {
     ready = restore();
   }
 
   final StudyTimerDao dao;
+  final StudyAlarm alarm;
+  bool _alarmEnabled = true;
+  Object? _alarmError;
   final DateTime Function() now;
   final void Function()? onSaved;
   late final Future<bool> ready;
@@ -40,10 +60,16 @@ class StudyTimerController extends StateNotifier<StudyTimerState> {
     state = const StudyTimerState(busy: true);
     try {
       final session = await dao.load();
-      if (mounted) state = StudyTimerState(session: session);
+      try {
+        _alarmEnabled = await alarm.loadEnabled();
+      } catch (error) {
+        _alarmError = error;
+      }
+      await _syncAlarm(session);
+      if (mounted) state = _state(session);
       return true;
     } catch (error) {
-      if (mounted) state = StudyTimerState(error: error);
+      if (mounted) state = _state(null, error: error);
       return false;
     }
   }
@@ -51,9 +77,10 @@ class StudyTimerController extends StateNotifier<StudyTimerState> {
   Future<bool> start(int workspaceId, String workspaceName) async {
     if (state.busy || state.session != null) return false;
     final session = StudyTimerSession(
-        workspaceId: workspaceId,
-        workspaceName: workspaceName,
-        startedAt: now());
+      workspaceId: workspaceId,
+      workspaceName: workspaceName,
+      startedAt: now(),
+    );
     return _persist(session, () => dao.start(session));
   }
 
@@ -63,8 +90,7 @@ class StudyTimerController extends StateNotifier<StudyTimerState> {
     if (session.isStopped) return true;
     final stopped = session.stop(now());
     if (stopped.elapsedAt(now()) < const Duration(seconds: 1)) {
-      state =
-          StudyTimerState(session: session, error: TimerTooShortException());
+      state = _state(session, error: TimerTooShortException());
       return false;
     }
     return _persist(stopped, () => dao.update(stopped), pending: stopped);
@@ -76,7 +102,9 @@ class StudyTimerController extends StateNotifier<StudyTimerState> {
         session == null ||
         !session.isStopped ||
         title.trim().isEmpty ||
-        title.trim().length > 80) return false;
+        title.trim().length > 80) {
+      return false;
+    }
     final pending = session.withSubject(title.trim());
     return _persist(null, () async {
       // Persist the subject as well so a failed save can be retried after restart.
@@ -114,17 +142,61 @@ class StudyTimerController extends StateNotifier<StudyTimerState> {
   }
 
   Future<bool> _persist(
-      StudyTimerSession? result, Future<void> Function() write,
-      {StudyTimerSession? pending}) async {
+    StudyTimerSession? result,
+    Future<void> Function() write, {
+    StudyTimerSession? pending,
+  }) async {
     final previous = pending ?? state.session;
-    state = StudyTimerState(session: previous, busy: true);
+    state = _state(previous, busy: true);
     try {
       await write();
-      if (mounted) state = StudyTimerState(session: result);
+      await _syncAlarm(result);
+      if (mounted) state = _state(result);
       return true;
     } catch (error) {
-      if (mounted) state = StudyTimerState(session: previous, error: error);
+      await _syncAlarm(previous);
+      if (mounted) state = _state(previous, error: error);
       return false;
     }
+  }
+
+  StudyTimerState _state(
+    StudyTimerSession? session, {
+    bool busy = false,
+    Object? error,
+  }) => StudyTimerState(
+    session: session,
+    busy: busy,
+    error: error,
+    alarmEnabled: _alarmEnabled,
+    alarmError: _alarmError,
+  );
+
+  Future<void> _syncAlarm(StudyTimerSession? session) async {
+    try {
+      await alarm.sync(session, now(), enabled: _alarmEnabled);
+      _alarmError = null;
+    } catch (error) {
+      // An Android audio/service failure must never undo a database write.
+      _alarmError = error;
+    }
+  }
+
+  Future<void> setAlarmEnabled(bool enabled) async {
+    if (state.busy) return;
+    _alarmEnabled = enabled;
+    state = _state(state.session, busy: true);
+    await _syncAlarm(state.session);
+    if (mounted) state = _state(state.session);
+  }
+
+  Future<void> previewAlarm() async {
+    try {
+      await alarm.preview();
+      _alarmError = null;
+    } catch (error) {
+      _alarmError = error;
+    }
+    if (mounted) state = _state(state.session);
   }
 }

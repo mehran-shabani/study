@@ -53,3 +53,11 @@ lib/generated/
 
 # Local properties
 android/local.properties
+android/key.properties
+*.jks
+*.keystore
+lib/l10n/generated/
+release/
+android/.gradle/
+android/build/
+android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java

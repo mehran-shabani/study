@@ -128,5 +128,45 @@
   "timerTimeUnits": "Hours : minutes : seconds",
   "timerPauseHint": "Take a break with Pause. Breaks are excluded from your study time.",
   "timerFinishedHint": "The timer has stopped. Save your subject to record this session.",
-  "timerBackgroundHint": "You can leave this screen. Your timer is preserved, even after closing the app."
+  "timerBackgroundHint": "You can leave this screen. Your timer is preserved, even after closing the app.",
+  "awarenessFailed": "Sound could not start. Toggle the alarm to retry. Your timer is preserved.",
+  "nextAwarenessAlarm": "Next: {count} beeps in {remaining}",
+  "awarenessDescription": "Every 15 minutes of active study: 1 beep at 15, 2 at 30, 3 at 45… Uses media volume.",
+  "awarenessAlarm": "Study awareness alarm",
+  "testAwarenessSound": "Test sound",
+  "@nextAwarenessAlarm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "remaining": {
+        "type": "String"
+      }
+    }
+  },
+  "backupMergePrompt": "Import {plans} plans and {entries} sessions? Existing data is kept and identical sessions are skipped. CSV imports use the first and last recorded day as plan dates; you can edit them afterwards.",
+  "saveBackup": "Save full backup",
+  "backupFailed": "Could not save or import this file. Your existing data is preserved.",
+  "backupImported": "Imported {count} study sessions",
+  "restoreBackup": "Import JSON backup or CSV",
+  "backupMenu": "Backup and transfer",
+  "backupFinishTimer": "Save or discard your pending timer before backing up or importing.",
+  "backupSaved": "Backup saved",
+  "@backupImported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@backupMergePrompt": {
+    "placeholders": {
+      "plans": {
+        "type": "int"
+      },
+      "entries": {
+        "type": "int"
+      }
+    }
+  }
 }

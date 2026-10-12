@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:study/l10n/generated/app_localizations.dart';
 import 'core/theme.dart';
 import 'data/providers.dart';
 import 'presentation/workspaces/workspace_list_screen.dart';
@@ -9,11 +9,7 @@ import 'presentation/tracker/tracker_screen.dart';
 import 'presentation/analytics/analytics_screen.dart';
 
 void main() {
-  runApp(
-    const ProviderScope(
-      child: StudyApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: StudyApp()));
 }
 
 class StudyApp extends StatelessWidget {
@@ -32,10 +28,7 @@ class StudyApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [
-        Locale('en'),
-        Locale('fa'),
-      ],
+      supportedLocales: const [Locale('en'), Locale('fa')],
       home: const MainScreen(),
       debugShowCheckedModeBanner: false,
     );
@@ -57,10 +50,7 @@ class MainScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      body: IndexedStack(
-        index: currentIndex,
-        children: _screens,
-      ),
+      body: IndexedStack(index: currentIndex, children: _screens),
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentIndex,
         onDestinationSelected: (index) {

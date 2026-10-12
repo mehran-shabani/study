@@ -1,0 +1,35 @@
+// Also covers Flutter SDK's included Gradle build, without editing the SDK.
+beforeSettings { settings ->
+    settings.pluginManagement.repositories {
+        clear()
+        maven { url 'https://maven.myket.ir' }
+    }
+}
+settingsEvaluated { settings ->
+    settings.pluginManagement.repositories {
+        clear()
+        maven { url 'https://maven.myket.ir' }
+    }
+    settings.dependencyResolutionManagement.repositories {
+        clear()
+        maven { url 'https://maven.myket.ir' }
+    }
+}
+allprojects {
+    buildscript.repositories.configureEach { repo ->
+        if (repo instanceof MavenArtifactRepository) {
+            repo.url = uri('https://maven.myket.ir')
+        }
+    }
+    repositories.configureEach { repo ->
+        if (repo instanceof MavenArtifactRepository &&
+            !repo.url.toString().startsWith('file:')) {
+            // Flutter engine artifacts live on the Pub/Storage mirror.
+            if (repo.url.toString().contains('download.flutter.io')) {
+                repo.url = uri('https://pub.myket.ir/download.flutter.io')
+            } else {
+                repo.url = uri('https://maven.myket.ir')
+            }
+        }
+    }
+}

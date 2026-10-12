@@ -1,10 +1,10 @@
 name: study
 description: A production-ready study tracking app for Android
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.1.0+2
 
 environment:
-  sdk: '>=3.3.0 <4.0.0'
+  sdk: '>=3.9.0 <4.0.0'
 
 dependencies:
   flutter:
@@ -25,8 +25,8 @@ dependencies:
   fl_chart: ^0.66.2
   
   # Internationalization
-  intl: ^0.19.0
-  persian_datetime_picker: 2.7.0
+  intl: ^0.20.2
+  persian_datetime_picker: ^3.2.0
 
   # CSV file sharing (compatible with Flutter 3.22)
   share_plus: ^9.0.0

@@ -8,6 +8,10 @@ permissions:
   contents: write
   packages: write
 
+env:
+  PUB_HOSTED_URL: https://pub.dev
+  FLUTTER_STORAGE_BASE_URL: https://storage.googleapis.com
+
 jobs:
   tag-release-apk:
     runs-on: ubuntu-latest
@@ -16,11 +20,16 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version: "3.22.x"
+          flutter-version: "3.44.2"
 
       - name: Fetch tags
         shell: bash
@@ -101,11 +110,18 @@ jobs:
       - name: Build release APK
         if: steps.headtag.outputs.tagged != 'true'
         shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: |
           set -euo pipefail
+          bash scripts/prepare-signing.sh
           flutter --version
-          flutter pub get
-          flutter build apk --release --no-shrink
+          flutter pub get --enforce-lockfile
+          flutter gen-l10n
+          flutter build apk --release --build-name "${{ steps.semver.outputs.next }}" --build-number "$(($(date +%s) - 1577836800))"
 
       - name: Create GitHub release
         if: steps.headtag.outputs.tagged != 'true'
@@ -116,3 +132,7 @@ jobs:
           files: build/app/outputs/flutter-apk/app-release.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Remove signing files
+        if: always()
+        run: rm -f android/key.properties android/signing/study-release.jks

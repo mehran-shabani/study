@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:study/l10n/generated/app_localizations.dart';
 import '../../data/models.dart';
 import '../../data/providers.dart';
 import '../../core/utils.dart';

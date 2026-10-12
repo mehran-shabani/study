@@ -1,3 +1,15 @@
+# 1.1.0 — Study awareness and stable Android signing
+
+- Add increasing quarter-hour beeps based on active study time, an alarm toggle,
+  sound preview and next-alarm countdown. Android runs the alarm with an ongoing
+  notification while the screen is off; pausing/stopping cancels sound.
+- Add complete JSON backups and merge imports, including CSV from older builds.
+- Require a fixed release keystore; configure both GitHub build workflows to use
+  signing secrets and increasing version codes instead of ephemeral debug keys.
+- Add PowerShell build/key tools, Myket repositories and a Persian build/upgrade
+  guide. Update compatibility with the locally installed Flutter 3.44.2.
+- Existing database name, schema and application ID remain unchanged.
+
 ## v1.0.3
 * Merge pull request #7 from codermehran/main
 * feat: add full-screen study stopwatch with pause and discard

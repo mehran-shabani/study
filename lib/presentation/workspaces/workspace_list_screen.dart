@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:study/l10n/generated/app_localizations.dart';
 import '../../data/models.dart';
 import '../../core/utils.dart';
 import '../../data/providers.dart';
 import '../../data/study_timer_provider.dart';
 import 'workspace_dialog.dart';
 import '../common/empty_state.dart';
+import '../common/backup_actions.dart';
 
 class WorkspaceListScreen extends ConsumerWidget {
   const WorkspaceListScreen({super.key});
@@ -20,6 +21,7 @@ class WorkspaceListScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.workspaces),
+        actions: const [BackupActions()],
       ),
       body: workspacesAsync.when(
         data: (workspaces) {

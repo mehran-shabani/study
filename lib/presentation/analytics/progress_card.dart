@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:study/l10n/generated/app_localizations.dart';
 import '../../core/utils.dart';
 import '../../data/models.dart';
 
@@ -61,7 +61,7 @@ class ProgressCard extends StatelessWidget {
                         backgroundColor: Theme.of(context)
                             .colorScheme
                             .surfaceContainerHighest
-                            .withOpacity(0.3),
+                            .withValues(alpha: 0.3),
                         valueColor: AlwaysStoppedAnimation<Color>(
                           _getProgressColor(context, progress),
                         ),

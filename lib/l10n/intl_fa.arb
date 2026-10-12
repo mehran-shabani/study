@@ -128,5 +128,45 @@
   "timerTimeUnits": "ساعت : دقیقه : ثانیه",
   "timerPauseHint": "برای استراحت، مکث را بزن. زمان استراحت جزو مطالعه حساب نمی‌شود.",
   "timerFinishedHint": "تایمر متوقف شده است. نام درس را وارد کن تا مطالعه ثبت شود.",
-  "timerBackgroundHint": "می‌توانی از این صفحه خارج شوی؛ تایمر حتی پس از بسته‌شدن برنامه حفظ می‌شود."
+  "timerBackgroundHint": "می‌توانی از این صفحه خارج شوی؛ تایمر حتی پس از بسته‌شدن برنامه حفظ می‌شود.",
+  "awarenessFailed": "هشدار صوتی فعال نشد. برای تلاش دوباره کلید هشدار را خاموش و روشن کن. تایمرت حفظ شده است.",
+  "nextAwarenessAlarm": "هشدار بعدی: {count} بوق، تا {remaining} دیگر",
+  "awarenessDescription": "هر ۱۵ دقیقه مطالعه: ۱۵ دقیقه یک بوق، ۳۰ دقیقه دو بوق، ۴۵ دقیقه سه بوق… با صدای رسانه گوشی.",
+  "awarenessAlarm": "هشدار آگاهی از زمان",
+  "testAwarenessSound": "آزمایش صدا",
+  "@nextAwarenessAlarm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "remaining": {
+        "type": "String"
+      }
+    }
+  },
+  "backupMergePrompt": "{plans} برنامه و {entries} جلسه وارد شود؟ اطلاعات فعلی حفظ و جلسه‌های یکسان رد می‌شوند. در CSV، تاریخ شروع و پایان برنامه از اولین و آخرین روز ثبت‌شده گرفته می‌شود؛ بعداً می‌توانی آن‌ها را ویرایش کنی.",
+  "saveBackup": "ذخیره پشتیبان کامل",
+  "backupFailed": "ذخیره یا واردکردن فایل انجام نشد. اطلاعات فعلی محفوظ است؛ فایل را بررسی کن.",
+  "backupImported": "{count} جلسه مطالعه وارد شد",
+  "restoreBackup": "واردکردن پشتیبان JSON یا CSV",
+  "backupMenu": "پشتیبان‌گیری و انتقال",
+  "backupFinishTimer": "قبل از پشتیبان‌گیری یا انتقال، تایمر باقی‌مانده را ذخیره یا حذف کن.",
+  "backupSaved": "پشتیبان ذخیره شد",
+  "@backupImported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@backupMergePrompt": {
+    "placeholders": {
+      "plans": {
+        "type": "int"
+      },
+      "entries": {
+        "type": "int"
+      }
+    }
+  }
 }
