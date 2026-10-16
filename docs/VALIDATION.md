@@ -10,6 +10,14 @@
 - No new Pub dependencies; the existing lockfile is unchanged.
 - Local Linux database tests used the installed SQLite library via a temporary
   `libsqlite3.so` link. Android compilation is included in the PR CI job.
+- All four Android Kotlin sources compile with Kotlin 2.2.20 against the
+  official Android API 36 classes and this Flutter engine’s real embedding JAR.
+  Resource IDs were represented by a temporary stub generated from the XML.
+  This is source compilation, not APK packaging.
+- JVM smoke checks for all three generated soundscapes confirmed the expected
+  16-second length, non-silent output, no PCM clipping and zero-valued loop ends.
+- GitHub CI run 38873674078 could not start: the account is locked due to a
+  billing issue. No runner step or APK build ran there.
 - Actual speaker/headphone output, incoming calls, screen-off delivery and OEM
   battery restrictions need a physical Android device; no device was connected.
 

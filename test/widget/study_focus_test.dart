@@ -110,6 +110,25 @@ void main() {
         await tester.tap(find.byKey(const ValueKey('sound-melody')));
         await tester.pumpAndSettle();
         expect(sound.settings.track, 'melody');
+        final keepAwake = find.widgetWithText(
+          SwitchListTile,
+          language == 'fa'
+              ? 'صفحه هنگام مطالعه روشن بماند'
+              : 'Keep screen on during study',
+        );
+        await tester.ensureVisible(keepAwake);
+        await tester.tap(keepAwake);
+        await tester.pumpAndSettle();
+        expect(sound.settings.keepAwake, true);
+        expect(sound.awake.contains(true), false); // Still taking a break.
+        await tester.ensureVisible(find.byKey(const ValueKey('timer-resume')));
+        await tester.tap(find.byKey(const ValueKey('timer-resume')));
+        await tester.pumpAndSettle();
+        expect(sound.awake.last, true);
+        await tester.ensureVisible(find.byKey(const ValueKey('timer-pause')));
+        await tester.tap(find.byKey(const ValueKey('timer-pause')));
+        await tester.pumpAndSettle();
+        expect(sound.awake.last, false);
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox.shrink());
         await tester.pumpAndSettle();
