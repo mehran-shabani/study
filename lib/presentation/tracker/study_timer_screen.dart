@@ -9,6 +9,7 @@ import '../../data/study_timer.dart';
 import '../../data/study_timer_provider.dart';
 import '../../data/study_alarm.dart';
 import 'timer_subject_dialog.dart';
+import 'study_focus_tools.dart';
 
 const timerButtonPink = Color(0xFFFFE1EC);
 const timerButtonInk = Color(0xFF82334F);
@@ -26,6 +27,7 @@ class _StudyTimerScreenState extends ConsumerState<StudyTimerScreen>
   Timer? _ticker;
   bool _foreground = true;
   bool _dialogOpen = false;
+  int _focusMinutes = 25;
 
   @override
   void initState() {
@@ -48,6 +50,9 @@ class _StudyTimerScreenState extends ConsumerState<StudyTimerScreen>
       _ticker = null;
     }
     if (mounted) setState(() {});
+    if (_foreground) {
+      unawaited(ref.read(studyTimerProvider.notifier).checkFocus());
+    }
   }
 
   @override
@@ -57,7 +62,8 @@ class _StudyTimerScreenState extends ConsumerState<StudyTimerScreen>
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    if (session?.isRunning == true && _foreground) {
+    if ((session?.isRunning == true || session?.breakEndsAt != null) &&
+        _foreground) {
       _ticker ??= Timer.periodic(const Duration(seconds: 1), (_) {
         if (mounted) setState(() {});
       });
@@ -198,70 +204,6 @@ class _StudyTimerScreenState extends ConsumerState<StudyTimerScreen>
                           style: theme.textTheme.bodyMedium,
                         ),
                         const SizedBox(height: 24),
-                        Card(
-                          child: Column(
-                            children: [
-                              SwitchListTile(
-                                key: const ValueKey('awareness-switch'),
-                                title: Text(l10n.awarenessAlarm),
-                                subtitle: Text(l10n.awarenessDescription),
-                                value: state.alarmEnabled,
-                                onChanged: state.busy
-                                    ? null
-                                    : (enabled) => ref
-                                          .read(studyTimerProvider.notifier)
-                                          .setAlarmEnabled(enabled),
-                              ),
-                              if (state.alarmEnabled &&
-                                  session != null &&
-                                  !session.isStopped)
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                  ),
-                                  child: Text(
-                                    l10n.nextAwarenessAlarm(
-                                      StudyAlarmProgress(elapsed).nextBeepCount,
-                                      formatTimerDuration(
-                                        StudyAlarmProgress(elapsed).remaining,
-                                      ),
-                                    ),
-                                    key: const ValueKey('awareness-next'),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              TextButton.icon(
-                                onPressed: state.busy
-                                    ? null
-                                    : ref
-                                          .read(studyTimerProvider.notifier)
-                                          .previewAlarm,
-                                icon: const Icon(Icons.volume_up_outlined),
-                                label: Text(l10n.testAwarenessSound),
-                              ),
-                              if (state.alarmError != null)
-                                Padding(
-                                  padding: const EdgeInsets.all(12),
-                                  child: Text(
-                                    l10n.awarenessFailed,
-                                    style: TextStyle(color: scheme.error),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        if (state.busy) const LinearProgressIndicator(),
-                        if (state.error != null) ...[
-                          Text(
-                            state.error is TimerTooShortException
-                                ? l10n.timerTooShort
-                                : l10n.timerActionFailed,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: scheme.error),
-                          ),
-                          const SizedBox(height: 12),
-                        ],
                         Wrap(
                           alignment: WrapAlignment.center,
                           spacing: 12,
@@ -335,6 +277,78 @@ class _StudyTimerScreenState extends ConsumerState<StudyTimerScreen>
                               ),
                           ],
                         ),
+                        const SizedBox(height: 16),
+                        StudyFocusTools(
+                          focusMinutes: _focusMinutes,
+                          onModeChanged: (value) =>
+                              setState(() => _focusMinutes = value),
+                          now: ref.read(timerClockProvider)(),
+                        ),
+                        const SizedBox(height: 16),
+                        Card(
+                          child: Column(
+                            children: [
+                              SwitchListTile(
+                                key: const ValueKey('awareness-switch'),
+                                title: Text(l10n.awarenessAlarm),
+                                subtitle: Text(l10n.awarenessDescription),
+                                value: state.alarmEnabled,
+                                onChanged: state.busy
+                                    ? null
+                                    : (enabled) => ref
+                                          .read(studyTimerProvider.notifier)
+                                          .setAlarmEnabled(enabled),
+                              ),
+                              if (state.alarmEnabled &&
+                                  session != null &&
+                                  !session.isStopped)
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                  child: Text(
+                                    l10n.nextAwarenessAlarm(
+                                      StudyAlarmProgress(elapsed).nextBeepCount,
+                                      formatTimerDuration(
+                                        StudyAlarmProgress(elapsed).remaining,
+                                      ),
+                                    ),
+                                    key: const ValueKey('awareness-next'),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              TextButton.icon(
+                                onPressed: state.busy
+                                    ? null
+                                    : ref
+                                          .read(studyTimerProvider.notifier)
+                                          .previewAlarm,
+                                icon: const Icon(Icons.volume_up_outlined),
+                                label: Text(l10n.testAwarenessSound),
+                              ),
+                              if (state.alarmError != null)
+                                Padding(
+                                  padding: const EdgeInsets.all(12),
+                                  child: Text(
+                                    l10n.awarenessFailed,
+                                    style: TextStyle(color: scheme.error),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        if (state.busy) const LinearProgressIndicator(),
+                        if (state.error != null) ...[
+                          Text(
+                            state.error is TimerTooShortException
+                                ? l10n.timerTooShort
+                                : l10n.timerActionFailed,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: scheme.error),
+                          ),
+                          const SizedBox(height: 12),
+                        ],
                         if (session != null) ...[
                           const SizedBox(height: 20),
                           TextButton.icon(
@@ -373,7 +387,18 @@ class _StudyTimerScreenState extends ConsumerState<StudyTimerScreen>
     }
     final workspace = widget.workspace;
     if (workspace != null) {
-      await _perform(() => controller.start(workspace.id!, workspace.name));
+      await _perform(
+        () => controller.start(
+          workspace.id!,
+          workspace.name,
+          focusMinutes: _focusMinutes,
+          breakMinutes: _focusMinutes == 50
+              ? 10
+              : _focusMinutes == 15
+              ? 3
+              : 5,
+        ),
+      );
     }
   }
 

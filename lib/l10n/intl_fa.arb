@@ -321,5 +321,56 @@
         "type": "String"
       }
     }
+  },
+  "focusCompanion": "همراه مطالعه",
+  "focusMode": "بازهٔ مطالعه",
+  "focusFree": "آزاد",
+  "focusGentle": "۱۵ / ۳ · سبک",
+  "focusStandard": "۲۵ / ۵ · تمرکز",
+  "focusDeep": "۵۰ / ۱۰ · عمیق",
+  "focusModeHint": "عدد اول دقیقهٔ مطالعه و عدد دوم استراحت است. پایان بازه، تایمر مکث می‌کند؛ ادامه با خودت است.",
+  "focusRemaining": "تا استراحت: {time}",
+  "focusRounds": "بازه‌های کامل: {count}",
+  "focusBreakRemaining": "استراحت · {time}",
+  "focusBreakReady": "استراحت تمام شد؛ هر وقت آماده‌ای «ادامه» را بزن.",
+  "focusBreakHint": "از پشت میز بلند شو، کمی راه برو و به فاصلهٔ دور نگاه کن. زمان استراحت مطالعه حساب نمی‌شود.",
+  "focusRecall": "جزوه را ببند: سه نکتهٔ همین مبحث را از حافظه بگو؛ سپس بررسی و اصلاح کن.",
+  "focusRecallTitle": "بازیابی فعال",
+  "focusSleepy": "خوابم می‌آید",
+  "focusSleepyHint": "اگر پلک‌هایت سنگین است، مکث کن. استراحت یا چرت کوتاه را انتخاب کن؛ ادامهٔ مطالعه خودکار نیست.",
+  "focusMoveBreak": "۳ دقیقه تحرک",
+  "focusNap": "۲۰ دقیقه استراحت / چرت",
+  "focusSleepNote": "اگر با خواب کافی باز هم مرتب وسط مطالعه خوابت می‌برد، به‌خصوص همراه خروپف، علت خواب‌آلودگی را بررسی کن.",
+  "focusSound": "صدای مطالعه · آفلاین",
+  "focusSoundOff": "سکوت",
+  "focusMelody": "ملودی بی‌کلام",
+  "focusRain": "بافت باران",
+  "focusBrown": "نویز بم",
+  "focusSoundHint": "صدا فقط هنگام مطالعه پخش و در مکث یا استراحت قطع می‌شود. اگر حواست را پرت می‌کند، سکوت را انتخاب کن.",
+  "focusSoundUnsupported": "صدای آفلاین و روشن‌ماندن صفحه در نسخهٔ اندروید در دسترس است.",
+  "focusVolume": "حجم صدا",
+  "focusKeepAwake": "صفحه هنگام مطالعه روشن بماند",
+  "focusKeepAwakeHint": "فقط در همین صفحه و هنگام اجرای تایمر؛ مصرف باتری بیشتر می‌شود.",
+  "focusSoundFailed": "تنظیم صدا انجام نشد؛ دوباره انتخاب کن. تایمر حفظ شده است.",
+  "@focusRemaining": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@focusBreakRemaining": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@focusRounds": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

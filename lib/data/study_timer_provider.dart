@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'providers.dart';
 import 'study_timer.dart';
@@ -51,6 +52,7 @@ class StudyTimerController extends StateNotifier<StudyTimerState> {
   final StudyAlarm alarm;
   bool _alarmEnabled = true;
   Object? _alarmError;
+  Timer? _focusTicker;
   final DateTime Function() now;
   final void Function()? onSaved;
   late final Future<bool> ready;
@@ -59,7 +61,12 @@ class StudyTimerController extends StateNotifier<StudyTimerState> {
     if (state.session != null) return true;
     state = const StudyTimerState(busy: true);
     try {
-      final session = await dao.load();
+      var session = await dao.load();
+      final settled = session?.settle(now());
+      if (settled != session && settled != null) {
+        await dao.update(settled);
+        session = settled;
+      }
       try {
         _alarmEnabled = await alarm.loadEnabled();
       } catch (error) {
@@ -67,6 +74,7 @@ class StudyTimerController extends StateNotifier<StudyTimerState> {
       }
       await _syncAlarm(session);
       if (mounted) state = _state(session);
+      _scheduleFocus();
       return true;
     } catch (error) {
       if (mounted) state = _state(null, error: error);
@@ -74,12 +82,25 @@ class StudyTimerController extends StateNotifier<StudyTimerState> {
     }
   }
 
-  Future<bool> start(int workspaceId, String workspaceName) async {
+  Future<bool> start(
+    int workspaceId,
+    String workspaceName, {
+    int focusMinutes = 0,
+    int breakMinutes = 5,
+  }) async {
     if (state.busy || state.session != null) return false;
+    if (![0, 15, 25, 50].contains(focusMinutes) ||
+        breakMinutes < 1 ||
+        breakMinutes > 30) {
+      return false;
+    }
     final session = StudyTimerSession(
       workspaceId: workspaceId,
       workspaceName: workspaceName,
       startedAt: now(),
+      focusMinutes: focusMinutes,
+      breakMinutes: breakMinutes,
+      focusTargetMs: Duration(minutes: focusMinutes).inMilliseconds,
     );
     return _persist(session, () => dao.start(session));
   }
@@ -88,7 +109,7 @@ class StudyTimerController extends StateNotifier<StudyTimerState> {
     final session = state.session;
     if (state.busy || session == null) return false;
     if (session.isStopped) return true;
-    final stopped = session.stop(now());
+    final stopped = session.settle(now()).stop(now());
     if (stopped.elapsedAt(now()) < const Duration(seconds: 1)) {
       state = _state(session, error: TimerTooShortException());
       return false;
@@ -124,7 +145,7 @@ class StudyTimerController extends StateNotifier<StudyTimerState> {
   Future<bool> pause() async {
     final session = state.session;
     if (state.busy || session == null || !session.isRunning) return false;
-    final paused = session.pause(now());
+    final paused = session.settle(now()).pause(now());
     return _persist(paused, () => dao.update(paused), pending: paused);
   }
 
@@ -141,6 +162,45 @@ class StudyTimerController extends StateNotifier<StudyTimerState> {
     return _persist(null, () => dao.discard(session));
   }
 
+  Future<bool> takeBreak(int minutes) async {
+    final session = state.session;
+    if (state.busy ||
+        session == null ||
+        session.isStopped ||
+        minutes < 1 ||
+        minutes > 30) {
+      return false;
+    }
+    final paused = session.settle(now()).takeBreak(now(), minutes: minutes);
+    return _persist(paused, () => dao.update(paused), pending: paused);
+  }
+
+  Future<void> checkFocus() async {
+    final session = state.session;
+    if (state.busy || session == null) return;
+    final settled = session.settle(now());
+    if (settled != session) {
+      await _persist(settled, () => dao.update(settled), pending: settled);
+    }
+  }
+
+  void _scheduleFocus() {
+    _focusTicker?.cancel();
+    _focusTicker = null;
+    if (mounted && state.session?.focusDeadline != null) {
+      _focusTicker = Timer.periodic(
+        const Duration(seconds: 1),
+        (_) => checkFocus(),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _focusTicker?.cancel();
+    super.dispose();
+  }
+
   Future<bool> _persist(
     StudyTimerSession? result,
     Future<void> Function() write, {
@@ -152,10 +212,12 @@ class StudyTimerController extends StateNotifier<StudyTimerState> {
       await write();
       await _syncAlarm(result);
       if (mounted) state = _state(result);
+      _scheduleFocus();
       return true;
     } catch (error) {
       await _syncAlarm(previous);
       if (mounted) state = _state(previous, error: error);
+      _scheduleFocus();
       return false;
     }
   }

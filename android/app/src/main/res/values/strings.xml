@@ -2,4 +2,8 @@
     <string name="awareness_channel">Study awareness</string>
     <string name="awareness_title">Study timer is running</string>
     <string name="awareness_next">%1$s · Next milestone: %2$d beeps</string>
+    <string name="focus_break">Study break</string>
+    <string name="focus_break_ready">Break finished — open Study when you are ready</string>
+    <string name="focus_studying">Focus block in progress</string>
+    <string name="focus_mute">Mute sound</string>
 </resources>

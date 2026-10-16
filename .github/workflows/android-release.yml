@@ -27,6 +27,9 @@ jobs:
       - run: flutter gen-l10n
       - run: flutter analyze
       - run: flutter test --coverage
+      - name: Compile Android integration for pull requests
+        if: github.event_name == 'pull_request'
+        run: flutter build apk --debug
       - uses: actions/upload-artifact@v4
         with:
           name: coverage

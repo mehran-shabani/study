@@ -1,5 +1,19 @@
 # Validation
 
+## Study companion — 2026-10-16
+
+- Flutter 3.44.2: `flutter analyze --no-pub` reports no issues.
+- `flutter test --no-pub`: all 107 tests passed. New checks cover exact focus
+  boundaries, overnight restore, manual pause, explicit break resume, failed
+  persistence, invalid settings, and Persian/English at 320px with 1.5× text.
+- All previous database migration, backup, timer and analytics tests still pass.
+- No new Pub dependencies; the existing lockfile is unchanged.
+- Local Linux database tests used the installed SQLite library via a temporary
+  `libsqlite3.so` link. Android compilation is included in the PR CI job.
+- Actual speaker/headphone output, incoming calls, screen-off delivery and OEM
+  battery restrictions need a physical Android device; no device was connected.
+
+
 ## More insights — 2026-10-13
 
 - `flutter analyze --no-pub`: no issues.
