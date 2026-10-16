@@ -35,6 +35,9 @@ class StudyAlarm {
       'sessionId': session?.startedAt.toUtc().toIso8601String() ?? '',
       'elapsedMs': session?.elapsedAt(now).inMilliseconds ?? 0,
       'workspace': session?.workspaceName ?? '',
+      'focusDeadline': session?.focusDeadline?.millisecondsSinceEpoch ?? 0,
+      'breakEndsAt': session?.breakEndsAt?.millisecondsSinceEpoch ?? 0,
+      'breakMinutes': session?.breakMinutes ?? 5,
     });
   }
 

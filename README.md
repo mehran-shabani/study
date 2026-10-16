@@ -8,6 +8,7 @@ A production-ready Flutter application for tracking study sessions and visualizi
 - ⏱️ **Study Logging**: Track daily study sessions with title, date, and hours
 - 🕒 **Study Timer**: Full-screen stopwatch with start, pause, continue, stop and discard
 - 🔔 **Awareness alarm**: Increasing beep counts every 15 active study minutes, including screen-off study
+- 🎧 **Study companion**: Focus/rest blocks, sleepy-break actions, active recall, offline instrumental/rain/brown sound and optional keep-screen-on. See [guide and research](docs/FOCUS_COMPANION.md).
 - 💾 **Backup and transfer**: Full JSON backup and import of older CSV exports
 - 📊 **Analytics**: Visualize progress with three interactive charts:
   - Overall progress percentage
@@ -138,7 +139,7 @@ SQLite via `sqflite` package with the following schema:
 - `title`: TEXT NOT NULL (max 80 chars)
 - `hours`: REAL NOT NULL (manual: 0.25–24; timer: exact positive elapsed hours)
 
-**study_timer** (database version 4)
+**study_timer** (database version 5)
 - One pending session: original workspace, UTC timestamps, subject and active interval history
 - Running, paused and stopped timers survive app restarts
 - Pending timers prevent deletion of their workspace until saved

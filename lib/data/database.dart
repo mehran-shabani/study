@@ -61,6 +61,7 @@ class DatabaseService {
     ''');
     await _createTimerTable(db);
     await _addTimerIntervals(db);
+    await _addFocusColumns(db);
   }
 
   static Future<void> _createTimerTable(Database db) async {
@@ -80,12 +81,32 @@ class DatabaseService {
     await db.execute('ALTER TABLE study_timer ADD COLUMN paused_at TEXT');
     await db.execute('ALTER TABLE study_timer ADD COLUMN active_since TEXT');
     await db.execute(
-        "ALTER TABLE study_timer ADD COLUMN intervals TEXT NOT NULL DEFAULT '[]'");
+      "ALTER TABLE study_timer ADD COLUMN intervals TEXT NOT NULL DEFAULT '[]'",
+    );
   }
 
   /// Preserve existing workspaces and entries when adding configurable targets.
+  static Future<void> _addFocusColumns(Database db) async {
+    await db.execute(
+      'ALTER TABLE study_timer ADD COLUMN focus_minutes INTEGER NOT NULL DEFAULT 0',
+    );
+    await db.execute(
+      'ALTER TABLE study_timer ADD COLUMN break_minutes INTEGER NOT NULL DEFAULT 5',
+    );
+    await db.execute(
+      'ALTER TABLE study_timer ADD COLUMN focus_target_ms INTEGER NOT NULL DEFAULT 0',
+    );
+    await db.execute(
+      'ALTER TABLE study_timer ADD COLUMN rounds_completed INTEGER NOT NULL DEFAULT 0',
+    );
+    await db.execute('ALTER TABLE study_timer ADD COLUMN break_ends_at TEXT');
+  }
+
   static Future<void> _onUpgrade(
-      Database db, int oldVersion, int newVersion) async {
+    Database db,
+    int oldVersion,
+    int newVersion,
+  ) async {
     if (oldVersion < 2) {
       await db.execute('''
         ALTER TABLE workspaces ADD COLUMN daily_target_hours REAL NOT NULL
@@ -94,6 +115,7 @@ class DatabaseService {
     }
     if (oldVersion < 3) await _createTimerTable(db);
     if (oldVersion < 4) await _addTimerIntervals(db);
+    if (oldVersion < 5) await _addFocusColumns(db);
   }
 
   /// Close the database

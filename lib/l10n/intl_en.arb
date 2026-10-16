@@ -321,5 +321,56 @@
         "type": "String"
       }
     }
+  },
+  "focusCompanion": "Study companion",
+  "focusMode": "Study interval",
+  "focusFree": "Free",
+  "focusGentle": "15 / 3 · Gentle",
+  "focusStandard": "25 / 5 · Focus",
+  "focusDeep": "50 / 10 · Deep",
+  "focusModeHint": "Study minutes / break minutes. The timer pauses at the boundary; you decide when to continue.",
+  "focusRemaining": "Break in {time}",
+  "focusRounds": "Completed blocks: {count}",
+  "focusBreakRemaining": "Break · {time}",
+  "focusBreakReady": "Break finished. Tap Continue when you are ready.",
+  "focusBreakHint": "Step away from the desk, move a little and look into the distance. Break time is excluded from study.",
+  "focusRecall": "Close your notes: recall three points, then check and correct them.",
+  "focusRecallTitle": "Active recall",
+  "focusSleepy": "I feel sleepy",
+  "focusSleepyHint": "If your eyelids feel heavy, pause. Choose a short break or a brief nap; study never resumes automatically.",
+  "focusMoveBreak": "3-minute movement break",
+  "focusNap": "20-minute rest / nap",
+  "focusSleepNote": "If sleepiness persists despite enough sleep, especially with snoring, have its cause assessed.",
+  "focusSound": "Study sound · Offline",
+  "focusSoundOff": "Silence",
+  "focusMelody": "Instrumental melody",
+  "focusRain": "Rain texture",
+  "focusBrown": "Brown noise",
+  "focusSoundHint": "Sound plays during study and stops on pause or breaks. Choose silence if it distracts you.",
+  "focusSoundUnsupported": "Offline audio and keep-screen-on are available on Android.",
+  "focusVolume": "Volume",
+  "focusKeepAwake": "Keep screen on during study",
+  "focusKeepAwakeHint": "Only on this screen while the timer runs; uses more battery.",
+  "focusSoundFailed": "Sound settings could not be applied. Select again; your timer is safe.",
+  "@focusRemaining": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@focusBreakRemaining": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@focusRounds": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

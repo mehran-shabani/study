@@ -2,4 +2,8 @@
     <string name="awareness_channel">آگاهی از زمان مطالعه</string>
     <string name="awareness_title">تایمر مطالعه فعال است</string>
     <string name="awareness_next">%1$s · هشدار بعدی: %2$d بوق</string>
+    <string name="focus_break">زمان استراحت</string>
+    <string name="focus_break_ready">استراحت تمام شد؛ هر وقت آماده‌ای استادی را باز کن</string>
+    <string name="focus_studying">بازهٔ مطالعه در حال اجراست</string>
+    <string name="focus_mute">قطع صدا</string>
 </resources>
