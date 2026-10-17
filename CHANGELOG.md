@@ -1,4 +1,9 @@
-# Unreleased — Settings and expanded offline music
+# 1.1.1 — AI sharing, refreshed interface and settings
+
+- Add complete study-analysis requests with preview, copying and AI app sharing;
+  send long histories as UTF-8 text files without truncating saved sessions.
+- Refresh light/dark styling, analytics cards and responsive report layouts.
+- Publish a new version commit with automatic GitHub builds enabled.
 
 - Read GitHub APK/release names directly from the validated VERSION text file;
   remove automatic patch bumps, tag-history checks and release-bot commits.
