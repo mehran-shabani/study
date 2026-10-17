@@ -18,18 +18,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Read and validate VERSION
+        id: version
+        run: python3 scripts/read-version.py
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.44.2'
           channel: stable
           cache: true
+      - name: Test version reader
+        run: python3 -m unittest discover -s test/ci -p 'test_*.py'
       - run: flutter pub get --enforce-lockfile
       - run: flutter gen-l10n
       - run: flutter analyze
       - run: flutter test --coverage
       - name: Compile Android integration for pull requests
         if: github.event_name == 'pull_request'
-        run: flutter build apk --debug
+        env:
+          STUDY_VERSION: ${{ steps.version.outputs.version }}
+        run: flutter build apk --debug --build-name "$STUDY_VERSION"
       - uses: actions/upload-artifact@v4
         with:
           name: coverage
@@ -41,6 +48,9 @@ jobs:
     needs: test
     steps:
       - uses: actions/checkout@v4
+      - name: Read and validate VERSION
+        id: version
+        run: python3 scripts/read-version.py
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -59,7 +69,10 @@ jobs:
         run: bash scripts/prepare-signing.sh
       - run: flutter pub get --enforce-lockfile
       - run: flutter gen-l10n
-      - run: flutter build apk --release --build-number "$(($(date +%s) - 1577836800))"
+      - name: Build the version from VERSION
+        env:
+          STUDY_VERSION: ${{ steps.version.outputs.version }}
+        run: flutter build apk --release --build-name "$STUDY_VERSION" --build-number "$(($(date +%s) - 1577836800))"
       - uses: actions/upload-artifact@v4
         with:
           name: app-release

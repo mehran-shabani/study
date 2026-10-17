@@ -1,5 +1,18 @@
 # Validation
 
+## File-driven release versions — 2026-10-17
+
+- Both GitHub workflows validate VERSION before build setup, then pass its
+  exact value as Flutter's `--build-name`. The release tag uses the same value.
+- `python -m unittest discover -s test/ci -p 'test_*.py' -v`: all 7 tests pass,
+  including UTF-8 BOM/CRLF, missing and malformed files, unsafe/multiline values,
+  step outputs, unchanged source files, and operation without Git history.
+- `actionlint` v1.7.12 reports no workflow errors. Validation used the official
+  Windows binary after checking its published SHA-256 checksum. Optional
+  shellcheck/pyflakes integrations were disabled because they are not installed.
+- VERSION is initialized to 1.1.0, matching the app's existing version name.
+  No package changes, local APK build or manual workflow dispatch were needed.
+
 ## Settings and expanded offline audio — 2026-10-17
 
 - `flutter gen-l10n` regenerated the stale localization output. The initial 33

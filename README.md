@@ -214,24 +214,34 @@ See [CHANGELOG.md](CHANGELOG.md) for version history.
 
 ## Release Automation
 
-This repository uses a GitHub Actions workflow to automatically bump the patch version, tag, and publish a GitHub Release on every push to `main`.
+The plain-text `VERSION` file is the release-name source for both GitHub
+workflows. Put one version on its own line, for example:
 
-- Trigger: pushes to `main`
-- Versioning: Semantic Versioning (patch only auto-increment)
-- Files updated: `VERSION`, `CHANGELOG.md`
-- Tags: annotated tags in the form `vX.Y.Z`
-- Release: Created with the contents of `CHANGELOG.md`
+```text
+1.1.0
+```
 
-Workflow details:
+- `.github/workflows/auto-release.yml` runs on pushes to `main` or manually.
+  It validates `VERSION`, builds the APK with that exact `--build-name`, then
+  creates or updates the `v1.1.0` release and uploads the APK.
+- `.github/workflows/android-release.yml` uses the same reader for its debug
+  and release APKs, overriding the fallback version in `pubspec.yaml`.
+- Neither workflow reads previous versions/tags, increments a version, skips a
+  build because a tag exists, or commits changes to `VERSION`/`CHANGELOG.md`.
+- Invalid or missing `VERSION` stops the workflow before installing Flutter or
+  building. The format is `X.Y.Z`, without `v`, prerelease suffixes, or `+code`.
+- Android's internal `versionCode` remains time-based so separate builds can be
+  installed as updates. It does not determine the displayed version name.
+- Rerunning the same version builds again and replaces the APK asset in the
+  existing release. Existing tags stay in place; new tags use the built commit.
+- Release signing still uses the fixed GitHub signing secrets.
 
-- Workflow files: `.github/workflows/auto-release.yml` and `.github/workflows/android-release.yml`
-- Actions used: `actions/checkout@v4`, `EndBug/add-and-commit@v9`, `softprops/action-gh-release@v2`
-- Permissions: `contents: write`, `packages: write`
+Validate version handling without building:
 
-Manual usage notes:
-
-- To bootstrap the first version if no tags exist, the workflow treats the last tag as `v1.0.0` and will create `v1.0.1` on the next push to `main`.
-- If you re-run a workflow and the computed tag already exists, it exits early without changes.
+```bash
+python3 scripts/read-version.py
+python3 -m unittest discover -s test/ci -p 'test_*.py'
+```
 
 ## Support
 

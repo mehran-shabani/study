@@ -3,10 +3,14 @@ name: Auto Release
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: write
-  packages: write
+
+concurrency:
+  group: auto-release-${{ github.ref }}
+  cancel-in-progress: false
 
 env:
   PUB_HOSTED_URL: https://pub.dev
@@ -17,8 +21,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+
+      - name: Read and validate VERSION
+        id: version
+        run: python3 scripts/read-version.py
+
+      - name: Test version reader
+        run: python3 -m unittest discover -s test/ci -p 'test_*.py'
 
       - uses: actions/setup-java@v4
         with:
@@ -29,88 +38,12 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version: "3.44.2"
-
-      - name: Fetch tags
-        shell: bash
-        run: git fetch --force --tags --quiet || true
-
-      - name: Check if HEAD already tagged (idempotency)
-        id: headtag
-        shell: bash
-        run: |
-          set -euo pipefail
-          TAGS=$(git tag --points-at HEAD | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' || true)
-          if [[ -n "$TAGS" ]]; then
-            echo "tagged=true" >> "$GITHUB_OUTPUT"
-            echo "tag=$(echo "$TAGS" | head -n1)" >> "$GITHUB_OUTPUT"
-            echo "This commit is already tagged ($TAGS). Skipping subsequent steps."
-          else
-            echo "tagged=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Compute next patch version
-        if: steps.headtag.outputs.tagged != 'true'
-        id: semver
-        shell: bash
-        run: |
-          set -euo pipefail
-          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.0.0")
-          echo "last=$LAST_TAG" >> "$GITHUB_OUTPUT"
-          VER=${LAST_TAG#v}
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$VER"
-          NEXT_PATCH=$((PATCH + 1))
-          NEXT_VERSION="$MAJOR.$MINOR.$NEXT_PATCH"
-          echo "next=$NEXT_VERSION" >> "$GITHUB_OUTPUT"
-
-      - name: Update changelog and version files
-        if: steps.headtag.outputs.tagged != 'true'
-        shell: bash
-        run: |
-          set -euo pipefail
-          NEXT="${{ steps.semver.outputs.next }}"
-          LAST="${{ steps.semver.outputs.last }}"
-          echo "$NEXT" > VERSION
-
-          if git rev-parse -q --verify "refs/tags/$LAST" >/dev/null; then
-            RANGE="$LAST..HEAD"
-          else
-            RANGE="$(git rev-list --max-parents=0 HEAD)..HEAD"
-          fi
-
-          CHANGELOG_TEMP=$(mktemp)
-          echo "## v$NEXT" > "$CHANGELOG_TEMP"
-          LOG=$(git log ${RANGE} --pretty=format:'* %s' --reverse || true)
-          if [[ -z "$LOG" ]]; then LOG="* Internal maintenance"; fi
-          echo "$LOG" >> "$CHANGELOG_TEMP"
-          echo >> "$CHANGELOG_TEMP"
-
-          if [[ -f CHANGELOG.md ]]; then
-            cat CHANGELOG.md >> "$CHANGELOG_TEMP"
-          fi
-          mv "$CHANGELOG_TEMP" CHANGELOG.md
-
-      - name: Commit changes
-        if: steps.headtag.outputs.tagged != 'true'
-        uses: EndBug/add-and-commit@v9
-        with:
-          add: "VERSION CHANGELOG.md"
-          message: "chore(release): v${{ steps.semver.outputs.next }}"
-          default_author: github_actions
-
-      - name: Tag commit
-        if: steps.headtag.outputs.tagged != 'true'
-        shell: bash
-        run: |
-          set -euo pipefail
-          TAG="v${{ steps.semver.outputs.next }}"
-          git tag -a "$TAG" -m "Release $TAG"
-          git push origin "$TAG"
+          flutter-version: '3.44.2'
 
       - name: Build release APK
-        if: steps.headtag.outputs.tagged != 'true'
         shell: bash
         env:
+          STUDY_VERSION: ${{ steps.version.outputs.version }}
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
@@ -118,20 +51,20 @@ jobs:
         run: |
           set -euo pipefail
           bash scripts/prepare-signing.sh
-          flutter --version
           flutter pub get --enforce-lockfile
           flutter gen-l10n
-          flutter build apk --release --build-name "${{ steps.semver.outputs.next }}" --build-number "$(($(date +%s) - 1577836800))"
+          flutter build apk --release --build-name "$STUDY_VERSION" --build-number "$(($(date +%s) - 1577836800))"
 
-      - name: Create GitHub release
-        if: steps.headtag.outputs.tagged != 'true'
+      - name: Create or update GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: "v${{ steps.semver.outputs.next }}"
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: ${{ steps.version.outputs.tag }}
+          target_commitish: ${{ github.sha }}
           body_path: CHANGELOG.md
           files: build/app/outputs/flutter-apk/app-release.apk
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          overwrite_files: true
+          fail_on_unmatched_files: true
 
       - name: Remove signing files
         if: always()

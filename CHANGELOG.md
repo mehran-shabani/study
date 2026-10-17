@@ -1,5 +1,7 @@
 # Unreleased — Settings and expanded offline music
 
+- Read GitHub APK/release names directly from the validated VERSION text file;
+  remove automatic patch bumps, tag-history checks and release-bot commits.
 - Add persistent Persian/English language selection, system/light/dark themes,
   accessible text sizing, focus defaults and a daily target for new plans.
 - Add a Settings tab with shared sound controls, awareness cues, backup access
