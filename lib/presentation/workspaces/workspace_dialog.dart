@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:study/l10n/generated/app_localizations.dart';
 import '../../data/models.dart';
 import '../../data/providers.dart';
+import '../../data/app_settings.dart';
 import '../../core/utils.dart';
 import '../../core/constants.dart';
 
@@ -43,7 +44,7 @@ class _WorkspaceDialogState extends ConsumerState<WorkspaceDialog> {
     );
     _targetController = TextEditingController(
       text: (widget.workspace?.dailyTargetHours ??
-              AppConstants.avgDailyTargetHours)
+              ref.read(appSettingsProvider).value.dailyTargetHours)
           .toString(),
     );
   }

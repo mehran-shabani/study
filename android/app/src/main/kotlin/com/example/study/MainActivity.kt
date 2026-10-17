@@ -15,6 +15,22 @@ class MainActivity: FlutterActivity() {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "study/files")
             .setMethodCallHandler { call, result -> backupFiles.handle(call, result) }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "study/settings")
+            .setMethodCallHandler { call, result ->
+                if (call.method != "language") { result.notImplemented(); return@setMethodCallHandler }
+                try {
+                    val language = call.arguments as? String ?: "system"
+                    require(language in listOf("system", "fa", "en"))
+                    check(getSharedPreferences("awareness", MODE_PRIVATE).edit()
+                        .putString("language", language).commit())
+                    val prefs = getSharedPreferences("awareness", MODE_PRIVATE)
+                    if (prefs.getBoolean("running", false) || prefs.getLong("breakEndsAt", 0L) > 0)
+                        startAwareness(Intent(this, AwarenessService::class.java))
+                    result.success(null)
+                } catch (error: Exception) {
+                    result.error("settings_failed", error.message, null)
+                }
+            }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "study/awareness")
             .setMethodCallHandler { call, result ->
                 val prefs = getSharedPreferences("awareness", MODE_PRIVATE)
@@ -33,11 +49,12 @@ class MainActivity: FlutterActivity() {
                         }
                         "setSound" -> {
                             val track = call.argument<String>("track") ?: "off"
-                            require(track in listOf("off", "melody", "rain", "brown"))
-                            val volume = (call.argument<Number>("volume")?.toFloat() ?: 0.25f)
-                                .coerceIn(0f, 0.6f)
-                            prefs.edit().putString("track", track).putFloat("volume", volume)
-                                .putBoolean("keepAwake", call.argument<Boolean>("keepAwake") == true).commit()
+                            require(track == "off" || track in FocusAudio.TRACKS)
+                            val requestedVolume = call.argument<Number>("volume")?.toFloat() ?: 0.25f
+                            require(requestedVolume.isFinite())
+                            val volume = requestedVolume.coerceIn(0f, 0.6f)
+                            check(prefs.edit().putString("track", track).putFloat("volume", volume)
+                                .putBoolean("keepAwake", call.argument<Boolean>("keepAwake") == true).commit())
                             if (prefs.getBoolean("running", false)) {
                                 requestNotifications()
                                 startAwareness(Intent(this, AwarenessService::class.java))
@@ -66,7 +83,7 @@ class MainActivity: FlutterActivity() {
                                 editor.putLong("lastQuarter", elapsed / AwarenessService.INTERVAL)
                                 editor.putLong("pendingFocusCue", 0L)
                             }
-                            editor.commit()
+                            check(editor.commit())
                             if ((running && (enabled || focusDeadline > 0 ||
                                         prefs.getString("track", "off") != "off")) || breakEnd > 0) {
                                 requestNotifications()

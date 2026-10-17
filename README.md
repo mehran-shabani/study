@@ -19,6 +19,11 @@ A production-ready Flutter application for tracking study sessions and visualizi
   adjustable tomorrow plan, spaced-review candidates, completed-week trends,
   and study-time goal outlook. See [research and calculation notes](docs/ANALYTICS_MORE.md).
 - 🌍 **Internationalization**: Support for English and Farsi (Persian)
+- ⚙️ **Settings**: Switch language immediately, choose light/dark/device theme,
+  adjust text size, set defaults for new study blocks and daily goals, and manage
+  sound, awareness cues and backups from a dedicated fourth tab.
+- 🎵 **12 offline sounds**: Six original instrumental textures and six nature/noise
+  options, with saved volume and synchronized controls in Settings and the timer.
 - 💾 **Offline-First**: All data stored locally with SQLite
 
 ## Screenshots
@@ -139,10 +144,18 @@ SQLite via `sqflite` package with the following schema:
 - `title`: TEXT NOT NULL (max 80 chars)
 - `hours`: REAL NOT NULL (manual: 0.25–24; timer: exact positive elapsed hours)
 
-**study_timer** (database version 5)
+**study_timer** (database version 6)
 - One pending session: original workspace, UTC timestamps, subject and active interval history
 - Running, paused and stopped timers survive app restarts
 - Pending timers prevent deletion of their workspace until saved
+
+**app_settings** (added in version 6)
+- One JSON preference row: language, appearance, text size, focus default and
+  daily target for new plans. Upgrading preserves existing plans and timers.
+- Settings load before the first screen. Changes save automatically; failed
+  writes retain the previous selection and allow retry.
+- Resetting app preferences preserves study data and alarm/sound choices.
+- JSON/CSV study backups contain plans and sessions; preferences stay on-device.
 
 ## Key Dependencies
 

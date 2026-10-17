@@ -5,6 +5,7 @@ import 'package:study/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/utils.dart';
 import '../../data/models.dart';
+import '../../data/app_settings.dart';
 import '../../data/study_timer.dart';
 import '../../data/study_timer_provider.dart';
 import '../../data/study_alarm.dart';
@@ -32,6 +33,7 @@ class _StudyTimerScreenState extends ConsumerState<StudyTimerScreen>
   @override
   void initState() {
     super.initState();
+    _focusMinutes = ref.read(appSettingsProvider).value.focusMinutes;
     WidgetsBinding.instance.addObserver(this);
   }
 

@@ -114,7 +114,7 @@ void main() {
       await dao.update(workspace.copyWith(dailyTargetHours: 7.5));
       await DatabaseService.close();
       expect((await dao.getById(1))!.dailyTargetHours, 7.5);
-      expect(await (await DatabaseService.database).getVersion(), 5);
+      expect(await (await DatabaseService.database).getVersion(), AppConstants.dbVersion);
     } finally {
       await DatabaseService.close();
       await directory.delete(recursive: true);

@@ -5,6 +5,7 @@ import 'package:study/l10n/generated/app_localizations.dart';
 import '../../data/study_sound.dart';
 import '../../data/study_timer.dart';
 import '../../data/study_timer_provider.dart';
+import '../common/study_sound_controls.dart';
 
 class StudyFocusTools extends ConsumerStatefulWidget {
   const StudyFocusTools({
@@ -23,9 +24,6 @@ class StudyFocusTools extends ConsumerStatefulWidget {
 
 class _StudyFocusToolsState extends ConsumerState<StudyFocusTools>
     with WidgetsBindingObserver {
-  StudySoundSettings _sound = const StudySoundSettings();
-  bool _loading = true;
-  bool _saving = false;
   bool _failed = false;
   bool _foreground = true;
   bool _awake = false;
@@ -36,26 +34,6 @@ class _StudyFocusToolsState extends ConsumerState<StudyFocusTools>
     super.initState();
     _adapter = ref.read(studySoundProvider);
     WidgetsBinding.instance.addObserver(this);
-    unawaited(_load());
-  }
-
-  Future<void> _load() async {
-    try {
-      final settings = await ref.read(studySoundProvider).load();
-      if (mounted) {
-        setState(() {
-          _sound = settings;
-          _loading = false;
-        });
-      }
-    } catch (_) {
-      if (mounted) {
-        setState(() {
-          _failed = true;
-          _loading = false;
-        });
-      }
-    }
   }
 
   @override
@@ -65,7 +43,9 @@ class _StudyFocusToolsState extends ConsumerState<StudyFocusTools>
       _awake = false;
       unawaited(_adapter.screenAwake(false).catchError((Object _) {}));
     }
-    if (_foreground) unawaited(_load());
+    if (_foreground) {
+      unawaited(ref.read(studySoundSettingsProvider.notifier).reload());
+    }
     if (mounted) setState(() {});
   }
 
@@ -77,30 +57,12 @@ class _StudyFocusToolsState extends ConsumerState<StudyFocusTools>
     super.dispose();
   }
 
-  Future<void> _save({String? track, double? volume, bool? keepAwake}) async {
-    if (_saving || _loading) return;
-    final settings = StudySoundSettings(
-      track: track ?? _sound.track,
-      volume: volume ?? _sound.volume,
-      keepAwake: keepAwake ?? _sound.keepAwake,
-    );
-    setState(() {
-      _saving = true;
-      _failed = false;
-    });
-    try {
-      await ref.read(studySoundProvider).save(settings);
-      if (mounted) setState(() => _sound = settings);
-    } catch (_) {
-      if (mounted) setState(() => _failed = true);
-    } finally {
-      if (mounted) setState(() => _saving = false);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(studyTimerProvider);
+    final sound =
+        ref.watch(studySoundSettingsProvider).valueOrNull ??
+        const StudySoundSettings();
     final session = state.session;
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
@@ -108,7 +70,7 @@ class _StudyFocusToolsState extends ConsumerState<StudyFocusTools>
     final desiredAwake =
         supported &&
         _foreground &&
-        _sound.keepAwake &&
+        sound.keepAwake &&
         session?.isRunning == true;
     if (_awake != desiredAwake) {
       _awake = desiredAwake;
@@ -241,65 +203,17 @@ class _StudyFocusToolsState extends ConsumerState<StudyFocusTools>
           child: ExpansionTile(
             key: const ValueKey('focus-sound-panel'),
             onExpansionChanged: (open) {
-              if (open) unawaited(_load());
+              if (open) {
+                unawaited(
+                  ref.read(studySoundSettingsProvider.notifier).reload(),
+                );
+              }
             },
             leading: const Icon(Icons.headphones_outlined),
             title: Text(l10n.focusSound),
             childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             children: [
-              if (!supported)
-                Text(l10n.focusSoundUnsupported)
-              else ...[
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 4,
-                  children: [
-                    for (final (id, label) in [
-                      ('off', l10n.focusSoundOff),
-                      ('melody', l10n.focusMelody),
-                      ('rain', l10n.focusRain),
-                      ('brown', l10n.focusBrown),
-                    ])
-                      ChoiceChip(
-                        key: ValueKey('sound-$id'),
-                        label: Text(label),
-                        selected: _sound.track == id,
-                        onSelected: _loading || _saving
-                            ? null
-                            : (_) => _save(track: id),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(l10n.focusSoundHint, style: theme.textTheme.bodySmall),
-                Slider(
-                  key: const ValueKey('focus-volume'),
-                  value: _sound.volume.clamp(0, 0.6),
-                  max: 0.6,
-                  divisions: 12,
-                  semanticFormatterCallback: (value) =>
-                      '${l10n.focusVolume} ${(value * 100).round()}%',
-                  onChanged: _loading || _saving
-                      ? null
-                      : (value) => setState(
-                          () => _sound = StudySoundSettings(
-                            track: _sound.track,
-                            volume: value,
-                            keepAwake: _sound.keepAwake,
-                          ),
-                        ),
-                  onChangeEnd: (value) => _save(volume: value),
-                ),
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(l10n.focusKeepAwake),
-                  subtitle: Text(l10n.focusKeepAwakeHint),
-                  value: _sound.keepAwake,
-                  onChanged: _loading || _saving
-                      ? null
-                      : (value) => _save(keepAwake: value),
-                ),
-              ],
+              const StudySoundControls(),
               if (_failed)
                 Text(
                   l10n.focusSoundFailed,

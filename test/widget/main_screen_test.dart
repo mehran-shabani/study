@@ -30,7 +30,7 @@ void main() {
       expect(find.byType(NavigationBar), findsOneWidget);
     });
 
-    testWidgets('MainScreen has three navigation destinations', (tester) async {
+    testWidgets('MainScreen has four navigation destinations', (tester) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -48,7 +48,7 @@ void main() {
 
       // Find all NavigationDestination widgets
       final destinations = find.byType(NavigationDestination);
-      expect(destinations, findsNWidgets(3));
+      expect(destinations, findsNWidgets(4));
     });
 
     testWidgets('MainScreen switches screens on navigation tap',

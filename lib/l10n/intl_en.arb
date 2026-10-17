@@ -372,5 +372,36 @@
         "type": "int"
       }
     }
-  }
+  },
+  "settings": "Settings",
+  "settingsAppearance": "Language & appearance",
+  "settingsLanguage": "App language",
+  "settingsSystem": "Follow device",
+  "settingsTheme": "Appearance",
+  "settingsLight": "Light",
+  "settingsDark": "Dark",
+  "settingsTextSize": "Text size",
+  "settingsTextNormal": "Default",
+  "settingsTextLarge": "Large",
+  "settingsTextLargest": "Larger",
+  "settingsStudy": "Study preferences",
+  "settingsDefaultFocus": "Default study block",
+  "settingsDefaultTarget": "Daily target for new plans",
+  "settingsDefaultsHint": "Defaults apply to new plans and new timer sessions. You can adjust each plan or session separately.",
+  "settingsBackupHint": "Save your plans and recorded study sessions as a file, or import a previous backup. App preferences stay on this device.",
+  "settingsAbout": "About Study",
+  "settingsOfflineHint": "Your study data stays on this device. All music and soundscapes work offline. Back up your progress before changing phones or removing the app.",
+  "settingsReset": "Reset app preferences",
+  "settingsResetHint": "Reset language, appearance, text size and study defaults? Your plans, study history, active timer, alarm and sound choices will be kept.",
+  "settingsSaveFailed": "Could not apply all preferences. Check your selection and try again.",
+  "settingsLoadFailed": "Could not load saved preferences. Try again before changing settings.",
+  "soundPiano": "Quiet piano",
+  "soundLofi": "Lo-fi keys",
+  "soundAmbient": "Ambient chords",
+  "soundStrings": "Soft strings",
+  "soundBells": "Gentle bells",
+  "soundOcean": "Ocean waves",
+  "soundForest": "Forest breeze",
+  "soundStream": "Flowing stream",
+  "soundWhite": "White noise"
 }

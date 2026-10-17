@@ -372,5 +372,36 @@
         "type": "int"
       }
     }
-  }
+  },
+  "settings": "تنظیمات",
+  "settingsAppearance": "زبان و ظاهر",
+  "settingsLanguage": "زبان برنامه",
+  "settingsSystem": "مطابق دستگاه",
+  "settingsTheme": "ظاهر برنامه",
+  "settingsLight": "روشن",
+  "settingsDark": "تیره",
+  "settingsTextSize": "اندازهٔ نوشته‌ها",
+  "settingsTextNormal": "پیش‌فرض",
+  "settingsTextLarge": "بزرگ",
+  "settingsTextLargest": "بزرگ‌تر",
+  "settingsStudy": "ترجیحات مطالعه",
+  "settingsDefaultFocus": "بازهٔ پیش‌فرض مطالعه",
+  "settingsDefaultTarget": "هدف روزانه برای برنامه‌های جدید",
+  "settingsDefaultsHint": "این پیش‌فرض‌ها برای برنامه‌ها و تایمرهای جدید هستند. هر برنامه یا جلسه را می‌توانی جداگانه تغییر بدهی.",
+  "settingsBackupHint": "برنامه‌ها و مطالعه‌های ثبت‌شده را در یک فایل ذخیره کن یا نسخهٔ قبلی را وارد کن. تنظیمات برنامه روی همین دستگاه می‌ماند.",
+  "settingsAbout": "دربارهٔ استادی",
+  "settingsOfflineHint": "اطلاعات مطالعه روی همین دستگاه نگهداری می‌شود. همهٔ ملودی‌ها و صداها آفلاین هستند. قبل از تعویض گوشی یا حذف برنامه از پیشرفتت پشتیبان بگیر.",
+  "settingsReset": "بازنشانی تنظیمات برنامه",
+  "settingsResetHint": "زبان، ظاهر، اندازهٔ نوشته‌ها و پیش‌فرض‌های مطالعه بازنشانی شوند؟ برنامه‌ها، سابقهٔ مطالعه، تایمر فعلی و انتخاب‌های زنگ و صدا حفظ می‌شوند.",
+  "settingsSaveFailed": "همهٔ تنظیمات اعمال نشد. انتخابت را بررسی کن و دوباره تلاش کن.",
+  "settingsLoadFailed": "تنظیمات ذخیره‌شده بارگذاری نشد. قبل از تغییر تنظیمات دوباره تلاش کن.",
+  "soundPiano": "پیانوی آرام",
+  "soundLofi": "کلاویهٔ لوفای",
+  "soundAmbient": "آکوردهای امبینت",
+  "soundStrings": "زهی ملایم",
+  "soundBells": "زنگ‌های آرام",
+  "soundOcean": "موج دریا",
+  "soundForest": "نسیم جنگل",
+  "soundStream": "جویبار",
+  "soundWhite": "نویز سفید"
 }

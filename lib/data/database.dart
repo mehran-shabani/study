@@ -5,12 +5,17 @@ import '../core/constants.dart';
 /// Database service for managing SQLite operations
 class DatabaseService {
   static Database? _database;
+  static Future<Database>? _opening;
 
   /// Get the database instance (singleton pattern)
   static Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDatabase();
-    return _database!;
+    final opening = _opening ??= _initDatabase();
+    try {
+      return _database = await opening;
+    } finally {
+      if (identical(_opening, opening)) _opening = null;
+    }
   }
 
   /// Initialize the database
@@ -62,7 +67,15 @@ class DatabaseService {
     await _createTimerTable(db);
     await _addTimerIntervals(db);
     await _addFocusColumns(db);
+    await _createSettingsTable(db);
   }
+
+  static Future<void> _createSettingsTable(Database db) => db.execute('''
+    CREATE TABLE app_settings (
+      id INTEGER PRIMARY KEY CHECK (id = 1),
+      value TEXT NOT NULL
+    )
+  ''');
 
   static Future<void> _createTimerTable(Database db) async {
     await db.execute('''
@@ -116,11 +129,12 @@ class DatabaseService {
     if (oldVersion < 3) await _createTimerTable(db);
     if (oldVersion < 4) await _addTimerIntervals(db);
     if (oldVersion < 5) await _addFocusColumns(db);
+    if (oldVersion < 6) await _createSettingsTable(db);
   }
 
   /// Close the database
   static Future<void> close() async {
-    final db = _database;
+    final db = _database ?? await _opening;
     if (db != null) {
       await db.close();
       _database = null;

@@ -1,3 +1,15 @@
+# Unreleased — Settings and expanded offline music
+
+- Add persistent Persian/English language selection, system/light/dark themes,
+  accessible text sizing, focus defaults and a daily target for new plans.
+- Add a Settings tab with shared sound controls, awareness cues, backup access
+  and preference reset that preserves study data.
+- Expand offline audio from 3 to 12 original soundscapes. Generate PCM off the
+  UI thread and release the audio-only service after playback interruption.
+- Preserve saved controls after failed writes; share database initialization;
+  refresh today's date on resume and count calendar days across DST changes.
+- Upgrade SQLite to version 6 without altering study history or pending timers.
+
 # 1.1.0 — Study awareness and stable Android signing
 
 - Add increasing quarter-hour beeps based on active study time, an alarm toggle,

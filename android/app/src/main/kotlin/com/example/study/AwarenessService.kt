@@ -5,13 +5,22 @@ import android.content.Intent
 import android.media.AudioManager
 import android.media.ToneGenerator
 import android.os.*
+import android.content.Context
+import android.content.res.Configuration
+import java.util.Locale
 
 /** Owns screen-off cues, focus boundaries and offline sound. SQLite remains the
  * authoritative stopwatch; native deadlines never automatically restart study. */
 class AwarenessService : Service() {
     private val handler = Handler(Looper.getMainLooper())
     private val prefs by lazy { getSharedPreferences("awareness", MODE_PRIVATE) }
-    private val audio by lazy { FocusAudio(this) }
+    private val audio by lazy { FocusAudio(this) {
+        handler.post {
+            if (!needed()) stopSelf()
+            else (getSystemService(NOTIFICATION_SERVICE) as NotificationManager)
+                .notify(NOTIFICATION_ID, notification())
+        }
+    } }
     private var wakeLock: PowerManager.WakeLock? = null
     private var tone: ToneGenerator? = null
     private var baseElapsed = 0L
@@ -128,10 +137,16 @@ class AwarenessService : Service() {
     }
 
     private fun notification(breakFinished: Boolean = false): Notification {
+        val language = prefs.getString("language", "system")
+        val localized: Context = if (language == "fa" || language == "en") {
+            createConfigurationContext(Configuration(resources.configuration).apply {
+                setLocale(Locale.forLanguageTag(language))
+            })
+        } else this
         val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= 26) {
             manager.createNotificationChannel(NotificationChannel(
-                CHANNEL, getString(R.string.awareness_channel), NotificationManager.IMPORTANCE_LOW
+                CHANNEL, localized.getString(R.string.awareness_channel), NotificationManager.IMPORTANCE_LOW
             ).apply { setSound(null, null) })
         }
         val open = PendingIntent.getActivity(this, 0,
@@ -143,16 +158,16 @@ class AwarenessService : Service() {
         val builder = if (Build.VERSION.SDK_INT >= 26) Notification.Builder(this, CHANNEL)
             else Notification.Builder(this)
         val text = when {
-            breakFinished -> getString(R.string.focus_break_ready)
-            !prefs.getBoolean("running", false) -> getString(R.string.focus_break)
-            prefs.getLong("focusDeadline", 0L) > 0 -> getString(R.string.focus_studying)
-            else -> getString(R.string.awareness_next, prefs.getString("workspace", ""), elapsed() / INTERVAL + 1)
+            breakFinished -> localized.getString(R.string.focus_break_ready)
+            !prefs.getBoolean("running", false) -> localized.getString(R.string.focus_break)
+            prefs.getLong("focusDeadline", 0L) > 0 -> localized.getString(R.string.focus_studying)
+            else -> localized.getString(R.string.awareness_next, prefs.getString("workspace", ""), elapsed() / INTERVAL + 1)
         }
         if (!breakFinished && prefs.getString("track", "off") != "off")
             builder.addAction(Notification.Action.Builder(
-                null, getString(R.string.focus_mute), stop).build())
+                null, localized.getString(R.string.focus_mute), stop).build())
         return builder.setSmallIcon(R.drawable.ic_awareness)
-            .setContentTitle(getString(R.string.awareness_title)).setContentText(text)
+            .setContentTitle(localized.getString(R.string.awareness_title)).setContentText(text)
             .setContentIntent(open).setOngoing(!breakFinished).setOnlyAlertOnce(true)
             .setCategory(Notification.CATEGORY_STOPWATCH).build()
     }
@@ -165,7 +180,7 @@ class AwarenessService : Service() {
 
     override fun onDestroy() {
         cancelCues()
-        audio.stop()
+        audio.close()
         wakeLock?.let { if (it.isHeld) it.release() }
         wakeLock = null
         super.onDestroy()

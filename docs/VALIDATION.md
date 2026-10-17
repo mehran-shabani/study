@@ -1,5 +1,33 @@
 # Validation
 
+## Settings and expanded offline audio — 2026-10-17
+
+- `flutter gen-l10n` regenerated the stale localization output. The initial 33
+  missing-localization analyzer errors are resolved.
+- `flutter analyze --no-pub`: no issues.
+- `flutter test --no-pub`: all 122 tests passed. Fifteen new tests cover saved
+  preferences across database reopen, safe defaults for malformed values,
+  version 5 → 6 migration with a pending timer, simultaneous database access,
+  failed writes and retry, immediate Persian/English and theme switching,
+  defaults in new plans/timers, all 12 sound choices, Persian number input,
+  reset preserving study data, and 320px layouts at 1.95× combined text scaling.
+- Offline dependency resolution succeeded using the existing Myket cache.
+  All package versions and checksums match the original lockfile, which remains
+  byte-for-byte unchanged. No new dependency or SDK change was needed.
+- All four Android Kotlin sources compiled for JVM 17 with Kotlin 2.2.20,
+  Android API 36, Flutter's installed embedding and cached AndroidX lifecycle.
+  A temporary `R` stub supplied resource constants; no Gradle task or APK build
+  was run. The pre-API-26 notification fallback emits its existing deprecation
+  warning.
+- JVM audio checks passed for all 12 generated tracks: 32-second length,
+  non-silent output, bounded PCM amplitude, zero-valued loop endpoints,
+  distinct output and deterministic regeneration.
+- Settings were rendered for visual review in Persian/light and English/dark.
+  Automated layout checks include the timer and the new settings at narrow
+  widths with large text. Physical speaker/headphone output, screen-off
+  playback and OEM battery handling still require a real Android device.
+- No APK was built and nothing was published.
+
 ## Study companion — 2026-10-16
 
 - Flutter 3.44.2: `flutter analyze --no-pub` reports no issues.

@@ -117,8 +117,8 @@ class AppUtils {
 
   /// Calculate days between two dates (inclusive)
   static int daysBetween(DateTime start, DateTime end) {
-    final startDate = DateTime(start.year, start.month, start.day);
-    final endDate = DateTime(end.year, end.month, end.day);
+    final startDate = DateTime.utc(start.year, start.month, start.day);
+    final endDate = DateTime.utc(end.year, end.month, end.day);
     return endDate.difference(startDate).inDays + 1;
   }
 
