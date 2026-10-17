@@ -18,6 +18,11 @@ A production-ready Flutter application for tracking study sessions and visualizi
 - ✨ **More insights**: Keep the existing Reports view and open More for an
   adjustable tomorrow plan, spaced-review candidates, completed-week trends,
   and study-time goal outlook. See [research and calculation notes](docs/ANALYTICS_MORE.md).
+- **Share with AI**: Preview or copy a complete analysis request for the selected
+  plan and send it through the device share menu to a compatible AI app. Long
+  histories share as a text file; the request includes all eligible saved logs.
+- **Refreshed interface**: Coordinated light/dark surfaces, readable cards and
+  controls, and responsive report charts with narrow-screen and RTL support.
 - 🌍 **Internationalization**: Support for English and Farsi (Persian)
 - ⚙️ **Settings**: Switch language immediately, choose light/dark/device theme,
   adjust text size, set defaults for new study blocks and daily goals, and manage

@@ -61,6 +61,7 @@ class StudyInsights {
       if (date.isBefore(start) || date.isAfter(end) || date.isAfter(today)) {
         continue;
       }
+      _includedEntries.add(entry);
       hoursByDate.update(
         entry.entryDate,
         (hours) => hours + entry.hours,
@@ -100,6 +101,8 @@ class StudyInsights {
   final DateTime today;
   late final DateTime start, end, tomorrow;
   final hoursByDate = <String, double>{};
+  final _includedEntries = <StudyEntry>[];
+  List<StudyEntry> get includedEntries => List.unmodifiable(_includedEntries);
   late final List<ReviewSubject> reviewSubjects;
   late final StudyWeek recentWeek, previousWeek;
 

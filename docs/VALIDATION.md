@@ -1,5 +1,24 @@
 # Validation
 
+## AI study sharing and interface refresh — 2026-10-17
+
+- `flutter analyze --no-pub`: no issues.
+- `flutter test --no-pub --reporter compact`: all 133 tests passed. Eleven new
+  checks cover report filtering, accurate completed-week statistics, adjusted
+  tomorrow budgets, empty/finished plans, Persian text and tiny timer durations,
+  complete long histories, matching preview/copy/share payloads, UTF-8 text-file
+  sharing, retry after platform errors, and narrow/wide Persian/English layouts.
+- Persian Reports, More insights and the sharing preview were rendered for
+  visual inspection, including dark appearance. Layout tests cover 320px with
+  1.5× text and 1200px with dark appearance. Compact report actions prevent
+  toolbar overflow with large text.
+- Native sharing is verified at the platform-channel boundary. Availability
+  and behavior of a particular installed AI app still depend on that device;
+  complete-text copying remains available.
+- No dependency, database, version or workflow changes. No APK build was run.
+  The commit uses `[skip ci]` to avoid the repository's automatic APK workflows
+  when pushing these changes.
+
 ## File-driven release versions — 2026-10-17
 
 - Both GitHub workflows validate VERSION before build setup, then pass its

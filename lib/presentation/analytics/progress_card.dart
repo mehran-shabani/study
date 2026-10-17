@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:study/l10n/generated/app_localizations.dart';
 import '../../core/utils.dart';
 import '../../data/models.dart';
@@ -18,95 +19,103 @@ class ProgressCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
     final locale = Localizations.localeOf(context).toString();
     String duration(double value) =>
         l10n.hoursValue(AppUtils.formatHourValue(value, locale: locale));
-    final totalHours =
-        entries.fold<double>(0.0, (sum, entry) => sum + entry.hours);
-
-    final startDate = AppUtils.parseDate(workspace.startDate);
-    final endDate = AppUtils.parseDate(workspace.endDate);
-    final days = AppUtils.daysBetween(startDate, endDate);
-    final expectedHours = days * workspace.dailyTargetHours;
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    final totalHours = entries.fold<double>(
+      0,
+      (sum, entry) => sum + entry.hours,
+    );
+    final days = AppUtils.daysBetween(
+      AppUtils.parseDate(workspace.startDate),
+      AppUtils.parseDate(workspace.endDate),
+    );
+    final percent = NumberFormat('0.#', locale).format(progress);
+    final ring = Semantics(
+      label: l10n.progressPercentage(percent),
+      excludeSemantics: true,
+      child: SizedBox.square(
+        dimension: 144,
+        child: Stack(
+          alignment: Alignment.center,
           children: [
-            Text(
-              l10n.overallProgress,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+            SizedBox.expand(
+              child: CircularProgressIndicator(
+                value: (progress / 100).clamp(0, 1),
+                strokeWidth: 12,
+                strokeCap: StrokeCap.round,
+                backgroundColor: colors.primaryContainer,
+              ),
             ),
-            const SizedBox(height: 8),
-            Text(
-                '${l10n.dailyTarget}: ${duration(workspace.dailyTargetHours)}'),
-            const SizedBox(height: 20),
-            Center(
-              child: SizedBox(
-                width: 160,
-                height: 160,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    SizedBox(
-                      width: 160,
-                      height: 160,
-                      child: CircularProgressIndicator(
-                        value: progress / 100,
-                        strokeWidth: 16,
-                        backgroundColor: Theme.of(context)
-                            .colorScheme
-                            .surfaceContainerHighest
-                            .withValues(alpha: 0.3),
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          _getProgressColor(context, progress),
-                        ),
-                      ),
-                    ),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '${progress.toStringAsFixed(1)}%',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineMedium
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: _getProgressColor(context, progress),
-                              ),
-                        ),
-                        Text(
-                          l10n.overallProgress,
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
-                    ),
-                  ],
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  '$percent%',
+                  style: theme.textTheme.headlineLarge?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: colors.primary,
+                  ),
                 ),
               ),
             ),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildStat(
-                  context,
-                  l10n.totalHours,
-                  duration(totalHours),
-                  Icons.schedule,
-                ),
-                _buildStat(
-                  context,
-                  l10n.expectedHours,
-                  duration(expectedHours),
-                  Icons.flag,
-                ),
-              ],
+          ],
+        ),
+      ),
+    );
+    final stats = Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _stat(
+          context,
+          l10n.totalHours,
+          duration(totalHours),
+          Icons.schedule_rounded,
+        ),
+        const SizedBox(width: 12),
+        _stat(
+          context,
+          l10n.expectedHours,
+          duration(days * workspace.dailyTargetHours),
+          Icons.flag_outlined,
+        ),
+      ],
+    );
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(l10n.overallProgress, style: theme.textTheme.titleLarge),
+            const SizedBox(height: 8),
+            Text(
+              '${l10n.dailyTarget}: ${duration(workspace.dailyTargetHours)}',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '${AppUtils.displayDate(workspace.startDate)} — ${AppUtils.displayDate(workspace.endDate)}',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 28),
+            LayoutBuilder(
+              builder: (context, constraints) => constraints.maxWidth >= 580
+                  ? Row(
+                      children: [
+                        ring,
+                        const SizedBox(width: 32),
+                        Expanded(child: stats),
+                      ],
+                    )
+                  : Column(children: [ring, const SizedBox(height: 28), stats]),
             ),
           ],
         ),
@@ -114,42 +123,36 @@ class ProgressCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStat(
-      BuildContext context, String label, String value, IconData icon) {
+  Widget _stat(
+    BuildContext context,
+    String label,
+    String value,
+    IconData icon,
+  ) {
+    final theme = Theme.of(context);
     return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(16),
+        ),
         child: Column(
-      children: [
-        Icon(
-          icon,
-          size: 32,
-          color: Theme.of(context).colorScheme.primary,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          value,
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: theme.colorScheme.primary, size: 22),
+            const SizedBox(height: 12),
+            Text(value, style: theme.textTheme.titleMedium),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
               ),
+            ),
+          ],
         ),
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-        ),
-      ],
-    ));
-  }
-
-  Color _getProgressColor(BuildContext context, double progress) {
-    if (progress >= 75) {
-      return Colors.green;
-    } else if (progress >= 50) {
-      return Colors.orange;
-    } else {
-      return Colors.red;
-    }
+      ),
+    );
   }
 }
