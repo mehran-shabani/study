@@ -31,7 +31,7 @@ final todayProvider = Provider<String>((ref) {
 });
 
 /// Shared tab navigation for contextual actions (plans, study, reports).
-final mainTabProvider = StateProvider<int>((ref) => 0);
+final mainTabProvider = StateProvider<int>((ref) => 4);
 
 /// Provider for currently selected workspace ID
 final selectedWorkspaceIdProvider = StateProvider<int?>((ref) => null);

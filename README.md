@@ -4,6 +4,12 @@ A production-ready Flutter application for tracking study sessions and visualizi
 
 ## Features
 
+- **Medical daily companion**: Start in My day, personalize 16 suggested medical
+  courses or add your own, choose your stage, set priorities and exam dates,
+  plan daily sessions, prepare a focused block and reflect at the end of the day.
+- **Three short focus games**: Number trail, pause-and-respond and pattern memory,
+  with bounded rounds and foreground-only practice time. Opening practice pauses
+  active study. See [design system and Persian guide](docs/DESIGN_SYSTEM_FA.md).
 - 📚 **Workspace Management**: Create and manage unlimited study workspaces with start/end dates
 - ⏱️ **Study Logging**: Track daily study sessions with title, date, and hours
 - 🕒 **Study Timer**: Full-screen stopwatch with start, pause, continue, stop and discard
@@ -26,7 +32,7 @@ A production-ready Flutter application for tracking study sessions and visualizi
 - 🌍 **Internationalization**: Support for English and Farsi (Persian)
 - ⚙️ **Settings**: Switch language immediately, choose light/dark/device theme,
   adjust text size, set defaults for new study blocks and daily goals, and manage
-  sound, awareness cues and backups from a dedicated fourth tab.
+  sound, awareness cues and backups from a dedicated Settings tab.
 - 🎵 **12 offline sounds**: Six original instrumental textures and six nature/noise
   options, with saved volume and synchronized controls in Settings and the timer.
 - 💾 **Offline-First**: All data stored locally with SQLite

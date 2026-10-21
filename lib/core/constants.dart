@@ -4,7 +4,7 @@ class AppConstants {
 
   // Database
   static const String dbName = 'study.db';
-  static const int dbVersion = 6;
+  static const int dbVersion = 7;
 
   // Validation limits
   static const int maxWorkspaceNameLength = 50;

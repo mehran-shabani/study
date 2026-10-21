@@ -9,6 +9,7 @@ import 'presentation/settings/settings_screen.dart';
 import 'presentation/workspaces/workspace_list_screen.dart';
 import 'presentation/tracker/tracker_screen.dart';
 import 'presentation/analytics/analytics_screen.dart';
+import 'presentation/companion/companion_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -114,7 +115,11 @@ class _MainScreenState extends ConsumerState<MainScreen>
     TrackerScreen(),
     AnalyticsScreen(),
     SettingsScreen(),
+    CompanionScreen(),
   ];
+
+  // Keep contextual tab IDs stable while placing the daily companion first.
+  static const _navigationOrder = [4, 0, 1, 2, 3];
 
   @override
   Widget build(BuildContext context) {
@@ -136,11 +141,16 @@ class _MainScreenState extends ConsumerState<MainScreen>
         ],
       ),
       bottomNavigationBar: NavigationBar(
-        selectedIndex: currentIndex,
+        selectedIndex: _navigationOrder.indexOf(currentIndex),
         onDestinationSelected: (index) {
-          ref.read(mainTabProvider.notifier).state = index;
+          ref.read(mainTabProvider.notifier).state = _navigationOrder[index];
         },
         destinations: [
+          NavigationDestination(
+            icon: const Icon(Icons.wb_sunny_outlined),
+            selectedIcon: const Icon(Icons.wb_sunny_rounded),
+            label: l10n.myDay,
+          ),
           NavigationDestination(
             icon: const Icon(Icons.workspace_premium_outlined),
             selectedIcon: const Icon(Icons.workspace_premium),

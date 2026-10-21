@@ -117,11 +117,13 @@ void main() {
       studyEntriesProvider.overrideWith((ref) => Stream.value(<StudyEntry>[])),
     ], child: const StudyApp()));
     await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(NavigationDestination, 'Plans'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Cardiology').first);
     await tester.pumpAndSettle();
     expect(
         tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
-        1);
+        2);
     final selector = find.byType(DropdownButton<int>);
     await tester.tap(selector);
     await tester.pumpAndSettle();
@@ -130,6 +132,6 @@ void main() {
     expect(tester.widget<DropdownButton<int>>(selector).value, 2);
     expect(
         tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
-        1);
+        2);
   });
 }

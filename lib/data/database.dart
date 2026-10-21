@@ -68,7 +68,15 @@ class DatabaseService {
     await _addTimerIntervals(db);
     await _addFocusColumns(db);
     await _createSettingsTable(db);
+    await _createCompanionTable(db);
   }
+
+  static Future<void> _createCompanionTable(Database db) => db.execute('''
+    CREATE TABLE study_companion (
+      workspace_id INTEGER PRIMARY KEY REFERENCES workspaces(id) ON DELETE CASCADE,
+      value TEXT NOT NULL
+    )
+  ''');
 
   static Future<void> _createSettingsTable(Database db) => db.execute('''
     CREATE TABLE app_settings (
@@ -130,6 +138,7 @@ class DatabaseService {
     if (oldVersion < 4) await _addTimerIntervals(db);
     if (oldVersion < 5) await _addFocusColumns(db);
     if (oldVersion < 6) await _createSettingsTable(db);
+    if (oldVersion < 7) await _createCompanionTable(db);
   }
 
   /// Close the database

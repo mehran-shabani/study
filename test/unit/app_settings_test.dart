@@ -121,10 +121,10 @@ void main() {
       );
       await databaseFactory.setDatabasesPath(directory.path);
       try {
-        // Construct the previous schema from the current schema by removing only
-        // the newly introduced table and resetting SQLite's user version.
+        // Reconstruct v5 by removing tables introduced in later versions.
         final db = await DatabaseService.database;
         await db.execute('DROP TABLE app_settings');
+        await db.execute('DROP TABLE study_companion');
         await db.setVersion(5);
         final id = await WorkspaceDao().insert(
           const Workspace(

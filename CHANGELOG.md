@@ -1,3 +1,16 @@
+# Unreleased — Medical daily companion
+
+- Introduce a shared clinical green/paper/violet design system for light and dark.
+- Open in My day, with per-plan medical courses, custom subjects, study stages,
+  priorities, Jalali exam dates and countdowns.
+- Add energy check-ins, daily planned sessions, preparation checklists and
+  read/recall/questions/case prompts; carry the subject into the study timer.
+- Add three bounded attention games with results, lifecycle pause and access
+  during breaks. Opening practice pauses active study without auto-resuming it.
+- Save daily reflections and tomorrow notes; browse previous and future days.
+- Migrate to SQLite 7 and include companion data in idempotent backup imports.
+- Add Persian/English responsive layouts and functional/persistence tests.
+
 # 1.1.1 — AI sharing, refreshed interface and settings
 
 - Add complete study-analysis requests with preview, copying and AI app sharing;

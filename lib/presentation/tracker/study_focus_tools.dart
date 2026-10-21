@@ -6,6 +6,7 @@ import '../../data/study_sound.dart';
 import '../../data/study_timer.dart';
 import '../../data/study_timer_provider.dart';
 import '../common/study_sound_controls.dart';
+import '../companion/focus_games_screen.dart';
 
 class StudyFocusTools extends ConsumerStatefulWidget {
   const StudyFocusTools({
@@ -173,6 +174,18 @@ class _StudyFocusToolsState extends ConsumerState<StudyFocusTools>
                         icon: const Icon(Icons.self_improvement),
                         label: Text(l10n.focusSleepy),
                       ),
+                      if (session.isPaused)
+                        OutlinedButton.icon(
+                          onPressed: state.busy
+                              ? null
+                              : () => Navigator.of(context).push(
+                                  MaterialPageRoute<void>(
+                                    builder: (_) => const FocusGamesScreen(),
+                                  ),
+                                ),
+                          icon: const Icon(Icons.extension_outlined),
+                          label: Text(l10n.companionWarmup),
+                        ),
                     ],
                   ),
                   if (session.isRunning &&

@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'database.dart';
+import 'study_companion.dart';
+import 'package:sqflite/sqflite.dart';
 
 class StudyBackup {
   static const channel = MethodChannel('study/files');
@@ -18,6 +20,7 @@ class StudyBackup {
         'createdAt': DateTime.now().toUtc().toIso8601String(),
         'workspaces': await tx.query('workspaces'),
         'entries': await tx.query('study_entries'),
+        'companions': await tx.query('study_companion'),
       });
     });
   }
@@ -86,6 +89,24 @@ class StudyBackup {
           count++;
         }
       }
+      for (final item in data.companions.entries) {
+        final id = ids[item.key]!;
+        final rows = await tx.query(
+          'study_companion',
+          where: 'workspace_id = ?',
+          whereArgs: [id],
+        );
+        final current = rows.isEmpty
+            ? const CompanionPlan()
+            : CompanionPlan.fromMap(
+                jsonDecode(rows.single['value'] as String)
+                    as Map<String, dynamic>,
+              );
+        await tx.insert('study_companion', {
+          'workspace_id': id,
+          'value': jsonEncode(current.merge(item.value).toMap()),
+        }, conflictAlgorithm: ConflictAlgorithm.replace);
+      }
       return count;
     });
   }
@@ -129,7 +150,28 @@ class StudyBackup {
       }
       entries.add(_entry(raw));
     }
-    return BackupData(plans, entries);
+    final companions = <int, CompanionPlan>{};
+    final rawCompanions = json['companions'];
+    if (rawCompanions != null) {
+      if (rawCompanions is! List) {
+        throw const FormatException('Invalid companions');
+      }
+      for (final raw in rawCompanions) {
+        if (raw is! Map ||
+            raw['workspace_id'] is! int ||
+            !ids.contains(raw['workspace_id']) ||
+            raw['value'] is! String ||
+            companions.containsKey(raw['workspace_id'])) {
+          throw const FormatException('Invalid companion workspace');
+        }
+        final value = jsonDecode(raw['value'] as String);
+        if (value is! Map<String, dynamic>) {
+          throw const FormatException('Invalid companion');
+        }
+        companions[raw['workspace_id'] as int] = CompanionPlan.fromMap(value);
+      }
+    }
+    return BackupData(plans, entries, companions);
   }
 
   static Map<String, Object?> _plan(Map raw) {
@@ -297,7 +339,8 @@ class StudyBackup {
 }
 
 class BackupData {
-  const BackupData(this.workspaces, this.entries);
+  const BackupData(this.workspaces, this.entries, [this.companions = const {}]);
   final List<Map<String, Object?>> workspaces;
   final List<Map<String, Object?>> entries;
+  final Map<int, CompanionPlan> companions;
 }

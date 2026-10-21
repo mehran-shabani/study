@@ -3,6 +3,7 @@ import 'package:study/l10n/generated/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models.dart';
 import '../../data/study_timer_provider.dart';
+import '../../data/study_companion.dart';
 import 'study_timer_screen.dart';
 
 /// Physical right alignment is intentional in both Persian and English.
@@ -34,7 +35,9 @@ class StudyTimerActions extends ConsumerWidget {
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
             onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(
-                builder: (_) => StudyTimerScreen(workspace: workspace))),
+                builder: (_) => StudyTimerScreen(workspace: workspace,
+                  initialSubject: workspace?.id == null ? ''
+                    : ref.read(selectedStudySubjectProvider(workspace!.id!))))),
             child: Stack(clipBehavior: Clip.none, children: [
               const Icon(Icons.schedule_rounded, size: 34),
               if (session != null)

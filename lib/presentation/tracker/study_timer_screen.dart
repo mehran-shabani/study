@@ -16,8 +16,15 @@ const timerButtonPink = Color(0xFFFFE1EC);
 const timerButtonInk = Color(0xFF82334F);
 
 class StudyTimerScreen extends ConsumerStatefulWidget {
-  const StudyTimerScreen({super.key, this.workspace});
+  const StudyTimerScreen({
+    super.key,
+    this.workspace,
+    this.initialSubject = '',
+    this.initialFocusMinutes,
+  });
   final Workspace? workspace;
+  final String initialSubject;
+  final int? initialFocusMinutes;
 
   @override
   ConsumerState<StudyTimerScreen> createState() => _StudyTimerScreenState();
@@ -29,17 +36,22 @@ class _StudyTimerScreenState extends ConsumerState<StudyTimerScreen>
   bool _foreground = true;
   bool _dialogOpen = false;
   int _focusMinutes = 25;
+  late final TextEditingController _subject;
 
   @override
   void initState() {
     super.initState();
-    _focusMinutes = ref.read(appSettingsProvider).value.focusMinutes;
+    _focusMinutes =
+        widget.initialFocusMinutes ??
+        ref.read(appSettingsProvider).value.focusMinutes;
+    _subject = TextEditingController(text: widget.initialSubject);
     WidgetsBinding.instance.addObserver(this);
   }
 
   @override
   void dispose() {
     _ticker?.cancel();
+    _subject.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -143,6 +155,26 @@ class _StudyTimerScreenState extends ConsumerState<StudyTimerScreen>
                           textAlign: TextAlign.center,
                           style: theme.textTheme.titleLarge,
                         ),
+                        if (session == null) ...[
+                          const SizedBox(height: 16),
+                          TextField(
+                            key: const ValueKey('timer-initial-subject'),
+                            controller: _subject,
+                            maxLength: 80,
+                            enabled: !state.busy,
+                            decoration: InputDecoration(
+                              labelText: l10n.entryTitle,
+                              prefixIcon: const Icon(Icons.menu_book_outlined),
+                            ),
+                          ),
+                        ] else if (session.subject.isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            session.subject,
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.titleMedium,
+                          ),
+                        ],
                         const SizedBox(height: 32),
                         Container(
                           width: double.infinity,
@@ -393,6 +425,7 @@ class _StudyTimerScreenState extends ConsumerState<StudyTimerScreen>
         () => controller.start(
           workspace.id!,
           workspace.name,
+          subject: _subject.text,
           focusMinutes: _focusMinutes,
           breakMinutes: _focusMinutes == 50
               ? 10

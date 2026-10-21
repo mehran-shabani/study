@@ -4,6 +4,7 @@ import 'package:study/l10n/generated/app_localizations.dart';
 import '../../data/study_backup.dart';
 import '../../data/providers.dart';
 import '../../data/study_timer_provider.dart';
+import '../../data/study_companion.dart';
 
 class BackupActions extends ConsumerStatefulWidget {
   const BackupActions({super.key});
@@ -54,6 +55,7 @@ class _BackupActionsState extends ConsumerState<BackupActions> {
         final count = await backup.importText(text);
         ref.invalidate(workspacesProvider);
         ref.invalidate(studyEntriesProvider);
+        ref.invalidate(companionProvider);
         _message(l10n.backupImported(count));
       } else if (await backup.save()) {
         _message(l10n.backupSaved);

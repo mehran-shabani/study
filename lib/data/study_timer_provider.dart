@@ -87,17 +87,20 @@ class StudyTimerController extends StateNotifier<StudyTimerState> {
     String workspaceName, {
     int focusMinutes = 0,
     int breakMinutes = 5,
+    String subject = '',
   }) async {
     if (state.busy || state.session != null) return false;
     if (![0, 15, 25, 50].contains(focusMinutes) ||
         breakMinutes < 1 ||
-        breakMinutes > 30) {
+        breakMinutes > 30 ||
+        subject.trim().length > 80) {
       return false;
     }
     final session = StudyTimerSession(
       workspaceId: workspaceId,
       workspaceName: workspaceName,
       startedAt: now(),
+      subject: subject.trim(),
       focusMinutes: focusMinutes,
       breakMinutes: breakMinutes,
       focusTargetMs: Duration(minutes: focusMinutes).inMilliseconds,

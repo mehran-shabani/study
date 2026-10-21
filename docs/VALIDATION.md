@@ -1,5 +1,21 @@
 # Validation
 
+## Medical daily companion — 2026-10-21
+
+- `flutter analyze --no-pub`: no issues.
+- `flutter test --no-pub --reporter compact`: all 152 tests passed.
+- New coverage includes per-plan/day persistence, version 6-to-7 migration,
+  backup ID remapping and repeated imports, failed-load/write recovery, medical
+  course customization, planned tasks and reflections, subject transfer into
+  the timer, pausing study for practice, all three complete game flows and
+  background/resume behavior.
+- Persian/English light/dark layouts checked at 320px with 1.3x app text.
+  Persian widget renders were visually inspected with readable text and icons;
+  screenshots and design decisions are in [the design guide](DESIGN_SYSTEM_FA.md).
+- `git diff --check`: passed. No dependencies, release versions or workflows
+  changed. No APK build was run, as requested. Native installation and device
+  behavior were not exercised in this change.
+
 ## AI study sharing and interface refresh — 2026-10-17
 
 - `flutter analyze --no-pub`: no issues.

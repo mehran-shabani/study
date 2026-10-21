@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'design_tokens.dart';
 
 /// Shared Material 3 surfaces, spacing and controls in both appearances.
 class AppTheme {
@@ -9,11 +10,22 @@ class AppTheme {
 
   static ThemeData _build(Brightness brightness) {
     final dark = brightness == Brightness.dark;
-    final colors = ColorScheme.fromSeed(
-      seedColor: const Color(0xFF6557C6),
-      brightness: brightness,
-    );
-    final background = dark ? const Color(0xFF12121B) : const Color(0xFFF6F7FC);
+    final colors =
+        ColorScheme.fromSeed(
+          seedColor: StudyDesign.brand,
+          brightness: brightness,
+        ).copyWith(
+          secondary: dark ? const Color(0xFFC9B6ED) : StudyDesign.accent,
+          onSecondary: dark ? const Color(0xFF33264A) : Colors.white,
+          secondaryContainer: dark
+              ? const Color(0xFF443655)
+              : const Color(0xFFEEE7F7),
+          onSecondaryContainer: dark
+              ? const Color(0xFFF1E6FF)
+              : const Color(0xFF453358),
+          surface: dark ? const Color(0xFF14211E) : const Color(0xFFFFFEFA),
+        );
+    final background = dark ? const Color(0xFF0E1916) : const Color(0xFFF4F6F1);
     final base = ThemeData(
       useMaterial3: true,
       colorScheme: colors,
@@ -22,7 +34,7 @@ class AppTheme {
       visualDensity: VisualDensity.standard,
     );
     final buttonShape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(StudyDesign.controlRadius),
     );
     final buttonStyle = FilledButton.styleFrom(
       minimumSize: const Size(48, 48),
@@ -59,7 +71,7 @@ class AppTheme {
         color: colors.surface,
         margin: const EdgeInsets.symmetric(vertical: 4),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(StudyDesign.cardRadius),
           side: BorderSide(color: colors.outlineVariant.withValues(alpha: 0.6)),
         ),
       ),
@@ -86,6 +98,14 @@ class AppTheme {
         elevation: 0,
         backgroundColor: colors.surface,
         indicatorColor: colors.primaryContainer,
+      ),
+      chipTheme: base.chipTheme.copyWith(
+        side: BorderSide(color: colors.outlineVariant),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      ),
+      listTileTheme: const ListTileThemeData(
+        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 4),
       ),
       dialogTheme: DialogThemeData(
         backgroundColor: colors.surface,

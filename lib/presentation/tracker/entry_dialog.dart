@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:study/l10n/generated/app_localizations.dart';
 import '../../data/models.dart';
 import '../../data/providers.dart';
+import '../../data/study_companion.dart';
 import '../../core/utils.dart';
 import '../common/jalali_date_picker.dart';
 
@@ -33,7 +34,8 @@ class _EntryDialogState extends ConsumerState<EntryDialog> {
         AppUtils.parseDate(widget.entry?.entryDate ?? AppUtils.today());
     _dateController = TextEditingController(
         text: AppUtils.displayDate(AppUtils.formatDate(_entryDate)));
-    _titleController = TextEditingController(text: widget.entry?.title ?? '');
+    _titleController = TextEditingController(text: widget.entry?.title ??
+        ref.read(selectedStudySubjectProvider(widget.workspaceId)));
     _hoursController =
         TextEditingController(text: widget.entry?.hours.toString() ?? '');
   }
